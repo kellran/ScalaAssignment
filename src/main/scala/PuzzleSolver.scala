@@ -1,10 +1,10 @@
-import PuzzleReaderWriter.{initRW, getNumPuzzles, getPuzzle, putSolution, closing}
+import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution}
 
 object PuzzleSolver extends App{ // This is the main file
   def solve(puzzle:Puzzle):Puzzle = {
     // we predefine just two solutions
     val solution7x7 =
-      "* _ _ _ _ _ _\n"+
+        "* _ _ _ _ _ _\n"+
         "2 _ _ * _ _ _\n"+
         "* 1 _ 2 0 _ *\n"+
         "X _ _ * _ _ _\n"+
@@ -12,7 +12,7 @@ object PuzzleSolver extends App{ // This is the main file
         "* _ _ _ _ 0 _\n"+
         "2 * X _ * _ _"
     val solution10x5 =
-      "_ _ _ _ * _ _ _ 1 *\n"+
+        "_ _ _ _ * _ _ _ 1 *\n"+
         "_ * 1 0 _ * X _ 0 _\n"+
         "_ _ _ _ _ _ _ * _ 1\n"+
         "_ _ * 2 _ 1 * _ X *\n"+
@@ -26,7 +26,7 @@ object PuzzleSolver extends App{ // This is the main file
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, solution)
   }
 
-  initRW(args(0),args(1))
+  initRW("puzzleFiles/puzzle_unsolved.txt","puzzleFiles/puzzle_solved.txt")
 
   val numPuzzles=getNumPuzzles()
 
