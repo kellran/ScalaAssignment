@@ -1,6 +1,6 @@
 import PuzzleReaderWriter.{initRW, getNumPuzzles, getPuzzle, putSolution, closing}
 
-object PuzzleSolver extends App{
+object PuzzleSolver extends App{ // This is the main file
   def solve(puzzle:Puzzle):Puzzle = {
     // we predefine just two solutions
     val solution7x7 =
