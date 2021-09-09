@@ -6,6 +6,8 @@ object PuzzleReaderWriter{
   var unsolvedFile:String="";
   var solvedFile:String="";
   var lines:List[String]=Nil;
+  var linesArray:Array[String] = Array("")
+  var linesArrayOfArray:Array[Array[Char]]= Array(Array());
   var fw:FileWriter=null;
 
 
@@ -21,6 +23,12 @@ object PuzzleReaderWriter{
     // writing number of puzzles into solution
     fw.write("puzzles "+countPuzzles.toString+"\n")
     return countPuzzles
+  }
+
+  def StringToArray(): Unit ={
+    linesArray = lines.toArray;
+    linesArrayOfArray = linesArray.map(x => x .toArray)
+    linesArrayOfArray
   }
 
   def getPuzzle(index:Int):Puzzle={
