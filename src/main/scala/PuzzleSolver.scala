@@ -1,4 +1,4 @@
-import PuzzleReaderWriter.{StringToArray, closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution}
+import PuzzleReaderWriter.{unsolvedToArray, closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution}
 
 object PuzzleSolver extends App{ // This is the main file
   def solve(puzzle:Puzzle):Puzzle = {
@@ -23,7 +23,7 @@ object PuzzleSolver extends App{ // This is the main file
       case 1005 => solution10x5
       case _   => "cannot solve this puzzle"
     }
-    StringToArray()
+    unsolvedToArray()
     println(linesArrayOfArray(0)(0))
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, solution)
   }

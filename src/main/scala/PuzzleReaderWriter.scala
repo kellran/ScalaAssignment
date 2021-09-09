@@ -25,7 +25,7 @@ object PuzzleReaderWriter{
     return countPuzzles
   }
 
-  def StringToArray(): Unit ={
+  def unsolvedToArray(): Unit ={
     linesArray = lines.toArray;
     linesArrayOfArray = linesArray.map(x => x .toArray)
     linesArrayOfArray
