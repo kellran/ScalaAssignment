@@ -31,6 +31,10 @@ object PuzzleReaderWriter{
     linesArrayOfArray
   }
 
+  /*def removeNonEssential()={
+
+  }*/
+
   def getPuzzle(index:Int):Puzzle={
     val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
     return new Puzzle(sizeNumbers(0).toInt,sizeNumbers.last.toInt,"")

@@ -1,6 +1,11 @@
-import PuzzleReaderWriter.{unsolvedToArray, closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution}
+import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution, unsolvedToArray}
+import PuzzleSolverFunctions.placeLightBulb
 
 object PuzzleSolver extends App{ // This is the main file
+
+  var bob = 3
+  var per = 8
+
   def solve(puzzle:Puzzle):Puzzle = {
     // we predefine just two solutions
     val solution7x7 =
@@ -24,7 +29,10 @@ object PuzzleSolver extends App{ // This is the main file
       case _   => "cannot solve this puzzle"
     }
     unsolvedToArray()
-    println(linesArrayOfArray(0)(0))
+    linesArrayOfArray = linesArrayOfArray.drop(2)
+    //println(linesArrayOfArray(0)(0))
+    //println(getNumPuzzles())
+    //println(getPuzzle(1))
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, solution)
   }
 
@@ -39,5 +47,7 @@ object PuzzleSolver extends App{ // This is the main file
   }
 
   println("Processed " + numPuzzles.toString + " puzzles.")
+  placeLightBulb(bob,per)
+  linesArrayOfArray.foreach(x => println(x.mkString("Array(", ", ", ")")))
   closing()
 }
