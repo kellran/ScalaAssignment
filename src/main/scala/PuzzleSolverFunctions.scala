@@ -2,6 +2,7 @@ object PuzzleSolverFunctions {
 
   def placeLightBulb(x:Any):Unit={
     //Simply places the lightbulb
+    //test
   }
 
   def greyBox(x: Int):Boolean={
