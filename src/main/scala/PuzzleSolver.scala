@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution, unsolvedToArray}
-import PuzzleSolverFunctions.placeLightBulb
+import PuzzleSolverFunctions.{placeGreyBox, placeLightBulb}
 
 object PuzzleSolver extends App{ // This is the main file
 
@@ -28,7 +28,10 @@ object PuzzleSolver extends App{ // This is the main file
       case 1005 => solution10x5
       case _   => "cannot solve this puzzle"
     }
+    // gjør string til array
     unsolvedToArray()
+
+    // fjerner to første linjene
     linesArrayOfArray = linesArrayOfArray.drop(2)
     //println(linesArrayOfArray(0)(0))
     //println(getNumPuzzles())
@@ -47,7 +50,8 @@ object PuzzleSolver extends App{ // This is the main file
   }
 
   println("Processed " + numPuzzles.toString + " puzzles.")
-  placeLightBulb(bob,per)
+  //placeLightBulb(bob,per)
+  placeGreyBox(bob,per)
   linesArrayOfArray.foreach(x => println(x.mkString("Array(", ", ", ")")))
   closing()
 }
