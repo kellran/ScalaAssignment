@@ -1,22 +1,26 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzleCustom, initRW, linjerList, putSolutionCustom, unsolvedToList}
-import PuzzleSolverFunctions.{find_pos_zero, greybox}
+import PuzzleSolverFunctions.{find_landlocked, find_pos_zero, greybox, place_landlocked}
 
 object PuzzleSolver extends App{
 
   def solveCustom(puzzle:Puzzle):Puzzle = {
     unsolvedToList()
-    val test = new Puzzle(puzzle.sizeX, puzzle.sizeY, linjerList)
+    val start_class = new Puzzle(puzzle.sizeX, puzzle.sizeY, linjerList)
 
-    val updated = find_pos_zero(test,List(),0,0)
-    println("Before:")
-    println(updated)
-    test.puzzle.foreach(x => println(x))
+    val zeros = find_pos_zero(start_class,List(),0,0)
+    println("Start:")
+    start_class.puzzle.foreach(x => println(x))
 
-    val greybox_updated = greybox(test,updated)
-    println("After:")
-    greybox_updated.puzzle.foreach(x => println(x))
+    val greybox_class = greybox(start_class,zeros)
+    println("After greybox:")
+    greybox_class.puzzle.foreach(x => println(x))
 
-    greybox_updated
+    val landlocked_tiles = find_landlocked(greybox_class,List(),0,0)
+    println(landlocked_tiles)
+    println("After landlocked:")
+    val landlocked_class = place_landlocked(greybox_class,landlocked_tiles)
+    landlocked_class.puzzle.foreach(x => println(x))
+    greybox_class
   }
 
   initRW("puzzleFiles/puzzle_unsolved.txt","puzzleFiles/puzzle_solved.txt")
