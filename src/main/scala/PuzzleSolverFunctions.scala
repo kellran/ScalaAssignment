@@ -1,20 +1,111 @@
-import PuzzleReaderWriter.linesArrayOfArray
+import PuzzleReaderWriter.{lines, linesArrayOfArray}
 
 object PuzzleSolverFunctions {
 
+  // returns a new class, with greyboxes
+  // around 0 numbered black tiles
+  // found with the find_pos_zero function
+  def place_landlocked(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val liste = puzzle.puzzle
 
-  def char_if_valid(puzzle:Puzzle, row:Int, colum:Int, x:Int, y:Int, char:Char): Puzzle ={
-    if(validpos(puzzle.puzzle,row,colum,x, y)){
-      val newpuzzle = puzzle.setChar(row, colum, char)
-      return newpuzzle
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val colom = pos.head._2
+
+      val lamp = char_if_valid(puzzle,row,colom,x,y,'*')
+      return place_landlocked(lamp,pos.drop(1))
     }
-
     return puzzle
   }
 
 
+  // returns true if the posistion (row,colum) of the list
+  // is either a non valid index or a black tile
+  def check_landlocked(liste:List[List[Char]], row:Int, colum:Int, x:Int, y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return true
+    }
+    if(colum < 0 || colum > x - 1){
+      return true
+    }
+    if(isBlack(liste, row, colum)){
+      return true
+    }
+    return false
+  }
+
+
+  // function takes in list, and posistion(row,colum)
+  // and returns true if it's black
+  // false if not
+  def isBlack(puzzle_list:List[List[Char]], row:Int, colum:Int): Boolean ={
+    if(puzzle_list(row)(colum) == '0'){
+      return true
+    }
+    if(puzzle_list(row)(colum) == '1'){
+      return true
+    }
+    if(puzzle_list(row)(colum) == '2'){
+      return true
+    }
+    if(puzzle_list(row)(colum) == '3'){
+      return true
+    }
+    if(puzzle_list(row)(colum) == '4'){
+      return true
+    }
+    if(puzzle_list(row)(colum) == 'X'){
+      return true
+    }
+    return false
+  }
+
+
+  // Checks each index in a 2d list
+  // and checks if each adjecent tile is black.
+  // returns a list of all 'landlocked tiles'
+
+  def find_landlocked(puzzle:Puzzle, list_of_landlocked:List[(Int,Int)], row:Int, colum:Int): List[(Int,Int)] ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val liste = puzzle.puzzle
+
+
+    if (row > y - 1){
+      return list_of_landlocked
+    }
+    if(colum > x - 1){
+      return find_landlocked(puzzle,list_of_landlocked,row +1, 0)
+    }
+    if(check_landlocked(liste,row - 1,colum,x, y)) {
+      if (check_landlocked(liste, row + 1, colum, x, y)) {
+        if (check_landlocked(liste, row, colum - 1, x, y)) {
+          if (check_landlocked(liste, row, colum + 1, x, y)) {
+            val newlist:List[(Int,Int)] = list_of_landlocked :+ (row,colum)
+            return find_landlocked(puzzle,newlist,row,colum + 1)
+          }
+          else{
+            return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
+          }
+        }
+        else{
+          return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
+        }
+      }
+      else{
+        return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
+      }
+    }
+    else{
+      return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
+    }
+  }
+
+
   // returns true if the posistion (row,colum)
-  // is a valid index
+  // is a valid index & not a white tile
   def validpos(liste:List[List[Char]], row:Int,colum:Int,x:Int,y:Int):Boolean = {
     if(row < 0 || row > y - 1){
       return false
@@ -28,7 +119,6 @@ object PuzzleSolverFunctions {
     return true
   }
 
-
   // returns true if the pos
   // is a white tile
   def isWhite(puzzle_list:List[List[Char]], row:Int, colum:Int): Boolean ={
@@ -38,7 +128,14 @@ object PuzzleSolverFunctions {
     return false
   }
 
+  def char_if_valid(puzzle:Puzzle, row:Int, colum:Int, x:Int, y:Int, char:Char): Puzzle ={
+    if(validpos(puzzle.puzzle,row,colum,x, y)){
+      val newpuzzle = puzzle.setChar(row, colum, char)
+      return newpuzzle
+    }
 
+    return puzzle
+  }
 
   // returns a new class, with greyboxes
   // around 0 numbered black tiles
@@ -61,7 +158,6 @@ object PuzzleSolverFunctions {
       return greybox(right,pos.drop(1))
     }
     return puzzle
-
   }
 
   // returns posistions of "0" numbered black tiles
@@ -89,6 +185,7 @@ object PuzzleSolverFunctions {
 
 
   // OLD FUNCTIONS BELOW:
+  /*
   //Simply places the lightbulb
   def placeLightBulb(x:Int, y: Int):Boolean={
     if (linesArrayOfArray(x)(y) != '_'){
@@ -133,5 +230,6 @@ object PuzzleSolverFunctions {
   def shineLight(x: Boolean):String={
     return "cbt"
   }
+   */
 
 }
