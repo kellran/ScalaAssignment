@@ -2,6 +2,92 @@ import PuzzleReaderWriter.linesArrayOfArray
 
 object PuzzleSolverFunctions {
 
+
+  def char_if_valid(puzzle:LightUpClass,row:Int,colum:Int,x:Int,y:Int,char:Char): LightUpClass ={
+    if(validpos(puzzle.puzzle,row,colum,x, y)){
+      val test = puzzle.setChar(row, colum, char)
+      return test
+    }
+
+    return puzzle
+  }
+
+
+  // returns true if the posistion (row,colum)
+  // is a valid index
+  def validpos(liste:List[List[Char]], row:Int,colum:Int,x:Int,y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return false
+    }
+    if(colum < 0 || colum > x - 1){
+      return false
+    }
+    if(!isWhite(liste, row, colum)){
+      return false
+    }
+    return true
+  }
+
+
+  // returns true if the pos
+  // is a white tile
+  def isWhite(liste:List[List[Char]],row:Int,colum:Int): Boolean ={
+    if(liste(row)(colum) == '_'){
+        return true
+      }
+    return false
+  }
+
+
+
+  // returns a new class, with greyboxes
+  // around 0 numbered black tiles
+  // found with the find_pos_zero function
+  def greybox(klasse:LightUpClass, pos:List[(Int,Int)]): LightUpClass ={
+    val x = klasse.sizeX
+    val y = klasse.sizeY
+    val liste = klasse.puzzle
+
+
+
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val colom = pos.head._2
+
+      val up = char_if_valid(klasse,row - 1,colom,x,y,'G')
+      val down = char_if_valid(up,row + 1,colom,x,y,'G')
+      val left = char_if_valid(down ,row,colom - 1,x,y,'G')
+      val right = char_if_valid(left,row,colom + 1,x,y,'G')
+      return greybox(right,pos.drop(1))
+    }
+    return klasse
+
+  }
+
+  // returns posistions of "0" numbered black tiles
+  // in the form a list of tuples(row,colum)
+  def find_pos_zero(klasse:LightUpClass, listofzeros:List[(Int,Int)], row:Int, colum:Int): List[(Int,Int)] ={
+    val x = klasse.sizeX
+    val y = klasse.sizeY
+    val liste = klasse.puzzle
+
+
+    if (row > y - 1){
+      return listofzeros
+    }
+    if(colum > x - 1){
+      return find_pos_zero(klasse,listofzeros,row +1, 0)
+    }
+    if(liste(row)(colum) == '0'){
+      val newlist:List[(Int,Int)] = listofzeros :+ (row,colum)
+      return find_pos_zero(klasse,newlist,row,colum + 1)
+    }
+    else{
+      return find_pos_zero(klasse,listofzeros,row,colum + 1)
+    }
+  }
+
+
   //Simply places the lightbulb
   def placeLightBulb(x:Int, y: Int):Boolean={
     if (linesArrayOfArray(x)(y) != '_'){

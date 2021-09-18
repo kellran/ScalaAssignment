@@ -7,6 +7,8 @@ object PuzzleReaderWriter{
   var solvedFile:String="";
   var lines:List[String]=Nil;
   var linesArray:Array[String] = Array("")
+  var linjerList:List[List[Char]] = List(List())
+
   var linesArrayOfArray:Array[Array[Char]]= Array(Array());
   var fw:FileWriter=null;
 
@@ -25,15 +27,16 @@ object PuzzleReaderWriter{
     return countPuzzles
   }
 
-  def unsolvedToArray(): Unit ={
-    linesArray = lines.toArray;
-    linesArrayOfArray = linesArray.map(x => x .toArray)
-    linesArrayOfArray
+  def getPuzzleCustom(index:Int):LightUpClass={
+    val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
+    return new LightUpClass(sizeNumbers(0).toInt,sizeNumbers.last.toInt,List(List()))
   }
 
-  /*def removeNonEssential()={
-
-  }*/
+  def unsolvedToList(): Unit ={
+    linjerList = lines
+      .map(x => x.toList)
+      .drop(2)
+  }
 
   def getPuzzle(index:Int):Puzzle={
     val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
@@ -43,6 +46,11 @@ object PuzzleReaderWriter{
   def putSolution(puzzle:Puzzle)={
     fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")
     fw.write(puzzle.solution+"\n")
+  }
+
+  def putSolutionCustom(puzzle:LightUpClass)={
+    fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")
+    fw.write(puzzle.puzzle+"\n")
   }
 
   def closing()={

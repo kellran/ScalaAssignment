@@ -1,11 +1,25 @@
-import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, linesArrayOfArray, putSolution, unsolvedToArray}
-import PuzzleSolverFunctions.{placeGreyBox, placeLightBulb}
+import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, getPuzzleCustom, initRW, linesArrayOfArray, linjerList, putSolution, putSolutionCustom, solvedFile, unsolvedToList}
+import PuzzleSolverFunctions.{find_pos_zero, greybox, placeGreyBox, placeLightBulb}
 
 object PuzzleSolver extends App{ // This is the main file
 
-  var bob = 3
-  var per = 8
+  def solveCustom(puzzle:LightUpClass):LightUpClass = {
+    unsolvedToList()
+    val test = new LightUpClass(puzzle.sizeX, puzzle.sizeY, linjerList)
 
+    val updated = find_pos_zero(test,List(),0,0)
+    println("Before:")
+    println(updated)
+    test.puzzle.foreach(x => println(x))
+
+    val greyboxclass = greybox(test,updated)
+    println("After:")
+    greyboxclass.puzzle.foreach(x => println(x))
+
+    test
+  }
+
+/*
   def solve(puzzle:Puzzle):Puzzle = {
     // we predefine just two solutions
     val solution7x7 =
@@ -30,28 +44,24 @@ object PuzzleSolver extends App{ // This is the main file
     }
     // gjør string til array
     unsolvedToArray()
-
+    new testClass(puzzle.sizeX, puzzle.sizeY,unsolvedToList(puzzle))
     // fjerner to første linjene
     linesArrayOfArray = linesArrayOfArray.drop(2)
     //println(linesArrayOfArray(0)(0))
     //println(getNumPuzzles())
     //println(getPuzzle(1))
+
     return new Puzzle(puzzle.sizeX, puzzle.sizeY, solution)
   }
-
-
+ */
   initRW("puzzleFiles/puzzle_unsolved.txt","puzzleFiles/puzzle_solved.txt")
-
   val numPuzzles=getNumPuzzles()
+
 
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
-    putSolution(solve(getPuzzle(count)))
+    putSolutionCustom(solveCustom(getPuzzleCustom(count)))
   }
 
-  println("Processed " + numPuzzles.toString + " puzzles.")
-  //placeLightBulb(bob,per)
-  placeGreyBox(bob,per)
-  linesArrayOfArray.foreach(x => println(x.mkString("Array(", ", ", ")")))
   closing()
 }
