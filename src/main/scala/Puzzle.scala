@@ -1,10 +1,11 @@
-// Puzzle class represents the problem and also the solution
-class Puzzle(x:Int, y:Int, sol:String) { // just trivial data here
+class Puzzle(x:Int, y:Int, puzzleList: List[List[Char]]) {
+
   val sizeX=x;
   val sizeY=y;
-  val solution=sol;
+  val puzzle = puzzleList
 
-  override def toString: String = {
-    s"${sizeX}x${sizeY} -->\n${solution}"
+  def setChar(row:Int, colum:Int, char:Char): Puzzle ={
+    val ny_liste = puzzle.updated(row, puzzle(row).updated(colum, char))
+    return new Puzzle(sizeX,sizeY,ny_liste)
   }
 }

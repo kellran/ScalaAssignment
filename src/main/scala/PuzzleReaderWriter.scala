@@ -27,9 +27,9 @@ object PuzzleReaderWriter{
     return countPuzzles
   }
 
-  def getPuzzleCustom(index:Int):LightUpClass={
+  def getPuzzleCustom(index:Int):Puzzle={
     val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
-    return new LightUpClass(sizeNumbers(0).toInt,sizeNumbers.last.toInt,List(List()))
+    return new Puzzle(sizeNumbers(0).toInt,sizeNumbers.last.toInt,List(List()))
   }
 
   def unsolvedToList(): Unit ={
@@ -38,17 +38,8 @@ object PuzzleReaderWriter{
       .drop(2)
   }
 
-  def getPuzzle(index:Int):Puzzle={
-    val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
-    return new Puzzle(sizeNumbers(0).toInt,sizeNumbers.last.toInt,"")
-  }
 
-  def putSolution(puzzle:Puzzle)={
-    fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")
-    fw.write(puzzle.solution+"\n")
-  }
-
-  def putSolutionCustom(puzzle:LightUpClass)={
+  def putSolutionCustom(puzzle:Puzzle)={
     fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")
     fw.write(puzzle.puzzle+"\n")
   }
