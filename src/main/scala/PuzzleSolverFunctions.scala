@@ -2,24 +2,69 @@ import PuzzleReaderWriter.{lines, linesArrayOfArray}
 
 object PuzzleSolverFunctions {
 
+
+  def place_implicit(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzlelist = puzzle.puzzle
+
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val column = pos.head._2
+
+      val up = char_if_valid(puzzle,row - 1,column,x,y,'*')
+      val down = char_if_valid(up,row + 1,column,x,y,'*')
+      val left = char_if_valid(down,row,column - 1,x,y,'*')
+      val right = char_if_valid(left,row,column + 1,x,y,'*')
+      return place_implicit(right,pos.drop(1))
+    }
+    return puzzle
+  }
+
+  // takes the list of all numbers of the puzzle and checks each posistion.
+  // If the number of '_' equals it's number, add the posistion to the return list.
+  // returns a list of all implicit landlocked tiles.
+  def find_implicit_landlocked(puzzle:Puzzle,numbers:List[(Int,Int)], implicit_landlocked:List[(Int,Int)]): List[(Int,Int)] ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val liste = puzzle.puzzle
+
+    if(numbers.nonEmpty){
+      val row = numbers.head._1
+      val column = numbers.head._2
+
+      if(liste(row)(column).asDigit == sum_of_char(puzzle,row,column,'_')){
+        val newlist:List[(Int,Int)] = implicit_landlocked :+ (row,column)
+        return find_implicit_landlocked(puzzle ,numbers.drop(1) ,newlist)
+      }
+    }
+    return implicit_landlocked
+  }
+
+
   // returns true if the posistion (row,column) of the list
-  // is a lamp post, else false
-  def check_if_lamppost_bool(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
-    // Left
-    if(puzzle_list(row)(column) == '*'){
-      return true
+  // is a "char", else false
+  def check_if_char_bool(puzzle: Puzzle, row:Int, column:Int, char: Char): Boolean ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzle_list = puzzle.puzzle
+    if(validpos(row ,column ,x ,y)){
+      if(puzzle_list(row)(column) == char){
+        return true
+      }
+      else false
     }
     else false
   }
 
   // returns 1 if the posistion (row,column) of the list
-  // is a lamp post, else 0
-  def check_if_lamppost_int(puzzle: Puzzle, row:Int, column:Int): Int ={
+  // is a "char", else 0
+  def check_if_char_int(puzzle: Puzzle, row:Int, column:Int, char: Char): Int ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
     val puzzle_list = puzzle.puzzle
     if(validpos(row ,column ,x ,y)){
-      if(puzzle_list(row)(column) == '*'){
+      if(puzzle_list(row)(column) == char){
         return 1
       }
       else 0
@@ -27,22 +72,22 @@ object PuzzleSolverFunctions {
     else 0
   }
 
-  // returns the number of lamppost
+  // returns the number of char
   // adjecent to tile, given a posistion(row,column).
-  def sum_of_lamps(puzzle: Puzzle, row:Int, column:Int): Int ={
+  def sum_of_char(puzzle: Puzzle, row:Int, column:Int,char: Char): Int ={
 
-    val up = check_if_lamppost_int(puzzle,row - 1,column)
-    val down = check_if_lamppost_int(puzzle,row + 1,column)
-    val left = check_if_lamppost_int(puzzle,row,column - 1)
-    val right = check_if_lamppost_int(puzzle,row,column + 1)
+    val up = check_if_char_int(puzzle,row - 1,column, char)
+    val down = check_if_char_int(puzzle,row + 1,column, char)
+    val left = check_if_char_int(puzzle,row,column - 1, char)
+    val right = check_if_char_int(puzzle,row,column + 1, char)
 
     val sum = up + down + left + right
     return sum
   }
 
   def all_number_pos(puzzle: Puzzle): List[(Int,Int)] ={
-    val zero: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'0')
-    val one: List[(Int,Int)] = zero ++ find_pos_of_char(puzzle,List(),0,0,'1')
+    //val zero: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'0')
+    val one: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'1')
     val two: List[(Int,Int)] = one ++ find_pos_of_char(puzzle,List(),0,0,'2')
     val three: List[(Int,Int)] = two ++ find_pos_of_char(puzzle,List(),0,0,'3')
     val four: List[(Int,Int)] = three ++ find_pos_of_char(puzzle,List(),0,0,'4')
@@ -54,8 +99,8 @@ object PuzzleSolverFunctions {
     val row = numbers.head._1
     val column = numbers.head._2
 
-    val sum = sum_of_lamps(puzzle,row,column)
-    val newpuzzle = puzzle.setInt(savedstate, row,column,sum)
+    val sum_numbers = sum_of_char(puzzle,row,column, '*')
+    val newpuzzle = puzzle.setInt(savedstate, row,column,sum_numbers)
     return newpuzzle
   }
 
@@ -63,7 +108,6 @@ object PuzzleSolverFunctions {
   // with the update_number function.
   def update_numbers(puzzle: Puzzle,savedstate:Puzzle, numbers:List[(Int,Int)]): Puzzle ={
     if(numbers.nonEmpty){
-      println(numbers)
 
       val update = update_number(puzzle,savedstate,numbers)
       return update_numbers(update,savedstate,numbers.drop(1))
