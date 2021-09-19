@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution, puzzlelist, unsolvedToList}
-import PuzzleSolverFunctions.{all_number_pos, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, place_implicit, place_landlocked, sum_of_char, update_numbers}
+import PuzzleSolverFunctions.{all_number_pos, count_until_char, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, place_implicit, place_landlocked, sum_of_char, update_numbers}
 
 object PuzzleSolver extends App{
 
@@ -41,6 +41,7 @@ object PuzzleSolver extends App{
     val numbers2 = all_number_pos(greybox_puzzle2)
     val impl_land = find_implicit_landlocked(greybox_puzzle2,numbers2,List())
     val impl_land_puzzle = place_implicit(greybox_puzzle2,impl_land)
+    println(numbers2 + " " + impl_land)
     println("Implicit landlocked:")
     impl_land_puzzle.puzzle.foreach(x => println(x))
 
@@ -50,11 +51,19 @@ object PuzzleSolver extends App{
     println("Numbers update:")
     numbers_puzzle2.puzzle.foreach(x => println(x))
 
-    //Re-run greybox
+    // Re-run greybox
     val zeros3 = find_pos_of_char(numbers_puzzle2,List(),0,0,'0')
     val greybox_puzzle3 = greybox(numbers_puzzle2,zeros3)
     println("Greybox:")
     greybox_puzzle3.puzzle.foreach(x => println(x))
+
+
+    // Cast light from lamps
+    val lamps = find_pos_of_char(greybox_puzzle3,List(),0,0,'*')
+    println(count_until_char(greybox_puzzle3, 1, 0, 'X', 'd', 0))
+
+
+
 
     impl_land_puzzle
   }
