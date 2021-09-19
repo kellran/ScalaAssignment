@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution, puzzlelist, unsolvedToList}
-import PuzzleSolverFunctions.{all_number_pos, find_landlocked, find_pos_of_char, greybox, place_landlocked, sum_of_lamps, update_numbers}
+import PuzzleSolverFunctions.{all_number_pos, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, place_implicit, place_landlocked, sum_of_char, update_numbers}
 
 object PuzzleSolver extends App{
 
@@ -35,7 +35,28 @@ object PuzzleSolver extends App{
     println("Greybox:")
     greybox_puzzle2.puzzle.foreach(x => println(x))
 
-    greybox_puzzle2
+
+    // Find all implicit landlocked tiles
+    // and place lamps adjecent
+    val numbers2 = all_number_pos(greybox_puzzle2)
+    val impl_land = find_implicit_landlocked(greybox_puzzle2,numbers2,List())
+    val impl_land_puzzle = place_implicit(greybox_puzzle2,impl_land)
+    println("Implicit landlocked:")
+    impl_land_puzzle.puzzle.foreach(x => println(x))
+
+    // Find all numbers and update numbers
+    val numbers3 = all_number_pos(impl_land_puzzle)
+    val numbers_puzzle2 = update_numbers(impl_land_puzzle,start_puzzle,numbers3)
+    println("Numbers update:")
+    numbers_puzzle2.puzzle.foreach(x => println(x))
+
+    //Re-run greybox
+    val zeros3 = find_pos_of_char(numbers_puzzle2,List(),0,0,'0')
+    val greybox_puzzle3 = greybox(numbers_puzzle2,zeros3)
+    println("Greybox:")
+    greybox_puzzle3.puzzle.foreach(x => println(x))
+
+    impl_land_puzzle
   }
 
   initRW("puzzleFiles/puzzle_unsolved.txt","puzzleFiles/puzzle_solved.txt")
