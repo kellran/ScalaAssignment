@@ -7,7 +7,7 @@ object PuzzleReaderWriter{
   var solvedFile:String="";
   var lines:List[String]=Nil;
   var linesArray:Array[String] = Array("")
-  var linjerList:List[List[Char]] = List(List())
+  var puzzlelist:List[List[Char]] = List(List())
 
   var linesArrayOfArray:Array[Array[Char]]= Array(Array());
   var fw:FileWriter=null;
@@ -27,19 +27,19 @@ object PuzzleReaderWriter{
     return countPuzzles
   }
 
-  def getPuzzleCustom(index:Int):Puzzle={
+  def getPuzzle(index:Int):Puzzle={
     val sizeNumbers=lines.filter(_ startsWith("size"))(index).split(" ").last.split("x")
     return new Puzzle(sizeNumbers(0).toInt,sizeNumbers.last.toInt,List(List()))
   }
 
   def unsolvedToList(): Unit ={
-    linjerList = lines
+    puzzlelist = lines
       .map(x => x.toList)
       .drop(2)
   }
 
 
-  def putSolutionCustom(puzzle:Puzzle)={
+  def putSolution(puzzle:Puzzle)={
     fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")
     fw.write(puzzle.puzzle+"\n")
   }

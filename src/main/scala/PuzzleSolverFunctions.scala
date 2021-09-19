@@ -2,135 +2,96 @@ import PuzzleReaderWriter.{lines, linesArrayOfArray}
 
 object PuzzleSolverFunctions {
 
+  // returns true if the posistion (row,column) of the list
+  // is a lamp post, else false
+  def check_if_lamppost_bool(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
+    // Left
+    if(puzzle_list(row)(column) == '*'){
+      return true
+    }
+    else false
+  }
+
+  // returns 1 if the posistion (row,column) of the list
+  // is a lamp post, else 0
+  def check_if_lamppost_int(puzzle: Puzzle, row:Int, column:Int): Int ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzle_list = puzzle.puzzle
+    if(validpos(row ,column ,x ,y)){
+      if(puzzle_list(row)(column) == '*'){
+        return 1
+      }
+      else 0
+    }
+    else 0
+  }
+
+  // returns the number of lamppost
+  // adjecent to tile, given a posistion(row,column).
+  def sum_of_lamps(puzzle: Puzzle, row:Int, column:Int): Int ={
+
+    val up = check_if_lamppost_int(puzzle,row - 1,column)
+    val down = check_if_lamppost_int(puzzle,row + 1,column)
+    val left = check_if_lamppost_int(puzzle,row,column - 1)
+    val right = check_if_lamppost_int(puzzle,row,column + 1)
+
+    val sum = up + down + left + right
+    return sum
+  }
+
+  def all_number_pos(puzzle: Puzzle): List[(Int,Int)] ={
+    val zero: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'0')
+    val one: List[(Int,Int)] = zero ++ find_pos_of_char(puzzle,List(),0,0,'1')
+    val two: List[(Int,Int)] = one ++ find_pos_of_char(puzzle,List(),0,0,'2')
+    val three: List[(Int,Int)] = two ++ find_pos_of_char(puzzle,List(),0,0,'3')
+    val four: List[(Int,Int)] = three ++ find_pos_of_char(puzzle,List(),0,0,'4')
+
+    return four: List[(Int,Int)]
+  }
+
+  def update_number(puzzle: Puzzle ,savedstate:Puzzle ,numbers:List[(Int,Int)]): Puzzle ={
+    val row = numbers.head._1
+    val column = numbers.head._2
+
+    val sum = sum_of_lamps(puzzle,row,column)
+    val newpuzzle = puzzle.setInt(savedstate, row,column,sum)
+    return newpuzzle
+  }
+
+  // takes in positions of numbers and updates them
+  // with the update_number function.
+  def update_numbers(puzzle: Puzzle,savedstate:Puzzle, numbers:List[(Int,Int)]): Puzzle ={
+    if(numbers.nonEmpty){
+      println(numbers)
+
+      val update = update_number(puzzle,savedstate,numbers)
+      return update_numbers(update,savedstate,numbers.drop(1))
+    }
+    return puzzle
+  }
+
   // returns a new class, with greyboxes
   // around 0 numbered black tiles
   // found with the find_pos_zero function
   def place_landlocked(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
-    val liste = puzzle.puzzle
+    val puzzlelist = puzzle.puzzle
 
     if(pos.nonEmpty){
       val row = pos.head._1
-      val colom = pos.head._2
+      val column = pos.head._2
 
-      val lamp = char_if_valid(puzzle,row,colom,x,y,'*')
+      val lamp = char_if_valid(puzzle,row,column,x,y,'*')
       return place_landlocked(lamp,pos.drop(1))
     }
     return puzzle
   }
 
-
-  // returns true if the posistion (row,colum) of the list
-  // is either a non valid index or a black tile
-  def check_landlocked(liste:List[List[Char]], row:Int, colum:Int, x:Int, y:Int):Boolean = {
-    if(row < 0 || row > y - 1){
-      return true
-    }
-    if(colum < 0 || colum > x - 1){
-      return true
-    }
-    if(isBlack(liste, row, colum)){
-      return true
-    }
-    return false
-  }
-
-
-  // function takes in list, and posistion(row,colum)
-  // and returns true if it's black
-  // false if not
-  def isBlack(puzzle_list:List[List[Char]], row:Int, colum:Int): Boolean ={
-    if(puzzle_list(row)(colum) == '0'){
-      return true
-    }
-    if(puzzle_list(row)(colum) == '1'){
-      return true
-    }
-    if(puzzle_list(row)(colum) == '2'){
-      return true
-    }
-    if(puzzle_list(row)(colum) == '3'){
-      return true
-    }
-    if(puzzle_list(row)(colum) == '4'){
-      return true
-    }
-    if(puzzle_list(row)(colum) == 'X'){
-      return true
-    }
-    return false
-  }
-
-
-  // Checks each index in a 2d list
-  // and checks if each adjecent tile is black.
-  // returns a list of all 'landlocked tiles'
-
-  def find_landlocked(puzzle:Puzzle, list_of_landlocked:List[(Int,Int)], row:Int, colum:Int): List[(Int,Int)] ={
-    val x = puzzle.sizeX
-    val y = puzzle.sizeY
-    val liste = puzzle.puzzle
-
-
-    if (row > y - 1){
-      return list_of_landlocked
-    }
-    if(colum > x - 1){
-      return find_landlocked(puzzle,list_of_landlocked,row +1, 0)
-    }
-    if(check_landlocked(liste,row - 1,colum,x, y)) {
-      if (check_landlocked(liste, row + 1, colum, x, y)) {
-        if (check_landlocked(liste, row, colum - 1, x, y)) {
-          if (check_landlocked(liste, row, colum + 1, x, y)) {
-            val newlist:List[(Int,Int)] = list_of_landlocked :+ (row,colum)
-            return find_landlocked(puzzle,newlist,row,colum + 1)
-          }
-          else{
-            return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
-          }
-        }
-        else{
-          return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
-        }
-      }
-      else{
-        return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
-      }
-    }
-    else{
-      return find_landlocked(puzzle,list_of_landlocked,row,colum + 1)
-    }
-  }
-
-
-  // returns true if the posistion (row,colum)
-  // is a valid index & not a white tile
-  def validpos(liste:List[List[Char]], row:Int,colum:Int,x:Int,y:Int):Boolean = {
-    if(row < 0 || row > y - 1){
-      return false
-    }
-    if(colum < 0 || colum > x - 1){
-      return false
-    }
-    if(!isWhite(liste, row, colum)){
-      return false
-    }
-    return true
-  }
-
-  // returns true if the pos
-  // is a white tile
-  def isWhite(puzzle_list:List[List[Char]], row:Int, colum:Int): Boolean ={
-    if(puzzle_list(row)(colum) == '_'){
-        return true
-      }
-    return false
-  }
-
-  def char_if_valid(puzzle:Puzzle, row:Int, colum:Int, x:Int, y:Int, char:Char): Puzzle ={
-    if(validpos(puzzle.puzzle,row,colum,x, y)){
-      val newpuzzle = puzzle.setChar(row, colum, char)
+  def char_if_valid(puzzle:Puzzle, row:Int, column:Int, x:Int, y:Int, char:Char): Puzzle ={
+    if(validpos_white(puzzle.puzzle,row,column,x, y)){
+      val newpuzzle = puzzle.setChar(row, column, char)
       return newpuzzle
     }
 
@@ -145,44 +106,144 @@ object PuzzleSolverFunctions {
     val y = puzzle.sizeY
     val liste = puzzle.puzzle
 
-
-
     if(pos.nonEmpty){
       val row = pos.head._1
-      val colom = pos.head._2
+      val column = pos.head._2
 
-      val up = char_if_valid(puzzle,row - 1,colom,x,y,'G')
-      val down = char_if_valid(up,row + 1,colom,x,y,'G')
-      val left = char_if_valid(down ,row,colom - 1,x,y,'G')
-      val right = char_if_valid(left,row,colom + 1,x,y,'G')
+      val up = char_if_valid(puzzle,row - 1,column,x,y,'G')
+      val down = char_if_valid(up,row + 1,column,x,y,'G')
+      val left = char_if_valid(down ,row,column - 1,x,y,'G')
+      val right = char_if_valid(left,row,column + 1,x,y,'G')
       return greybox(right,pos.drop(1))
     }
     return puzzle
   }
 
-  // returns posistions of "0" numbered black tiles
-  // in the form a list of tuples(row,colum)
-  def find_pos_zero(puzzle:Puzzle, listofzeros:List[(Int,Int)], row:Int, colum:Int): List[(Int,Int)] ={
+  // Checks each index in a 2d list
+  // and checks if each adjecent tile is black.
+  // returns a list of all 'landlocked tiles'
+  def find_landlocked(puzzle:Puzzle, list_of_landlocked:List[(Int,Int)], row:Int, column:Int): List[(Int,Int)] ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
     val liste = puzzle.puzzle
 
 
     if (row > y - 1){
+      return list_of_landlocked
+    }
+    if(column > x - 1){
+      return find_landlocked(puzzle,list_of_landlocked,row +1, 0)
+    }
+    if(check_landlocked(liste,row - 1,column,x, y)) {
+      if (check_landlocked(liste, row + 1, column, x, y)) {
+        if (check_landlocked(liste, row, column - 1, x, y)) {
+          if (check_landlocked(liste, row, column + 1, x, y)) {
+            val newlist:List[(Int,Int)] = list_of_landlocked :+ (row,column)
+            return find_landlocked(puzzle,newlist,row,column + 1)
+          }
+        }
+      }
+    }
+    return find_landlocked(puzzle,list_of_landlocked,row,column + 1)
+  }
+
+  // returns posistions of given char
+  // in the form a list of tuples(row,column)
+  def find_pos_of_char(puzzle:Puzzle, listofzeros:List[(Int,Int)], row:Int, column:Int, char: Char): List[(Int,Int)] ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val liste = puzzle.puzzle
+
+    if (row > y - 1){
       return listofzeros
     }
-    if(colum > x - 1){
-      return find_pos_zero(puzzle,listofzeros,row +1, 0)
+    if(column > x - 1){
+      return find_pos_of_char(puzzle,listofzeros,row +1, 0,char)
     }
-    if(liste(row)(colum) == '0'){
-      val newlist:List[(Int,Int)] = listofzeros :+ (row,colum)
-      return find_pos_zero(puzzle,newlist,row,colum + 1)
+    if(liste(row)(column) == char){
+      val newlist:List[(Int,Int)] = listofzeros :+ (row,column)
+      return find_pos_of_char(puzzle,newlist,row,column + 1,char)
     }
     else{
-      return find_pos_zero(puzzle,listofzeros,row,colum + 1)
+      return find_pos_of_char(puzzle,listofzeros,row,column + 1,char)
     }
   }
 
+  // returns true if the posistion (row,column) of the list
+  // is either a non valid index or a black tile
+  def check_landlocked(liste:List[List[Char]], row:Int, column:Int, x:Int, y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return true
+    }
+    if(column < 0 || column > x - 1){
+      return true
+    }
+    if(isBlack(liste, row, column)){
+      return true
+    }
+    return false
+  }
+
+  // returns true if the posistion (row,column)
+  // is a valid index & not a white tile
+  def validpos_white(liste:List[List[Char]], row:Int, column:Int, x:Int, y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return false
+    }
+    if(column < 0 || column > x - 1){
+      return false
+    }
+    if(!isWhite(liste, row, column)){
+      return false
+    }
+    return true
+  }
+
+  // returns true if the posistion (row,column)
+  // is a valid index
+  def validpos(row:Int,column:Int,x:Int,y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return false
+    }
+    if(column < 0 || column > x - 1){
+      return false
+    }
+    return true
+  }
+
+  // returns true if the pos
+  // is a white tile
+  def isWhite(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
+    if(puzzle_list(row)(column) == '_'){
+      return true
+    }
+    return false
+  }
+
+  // function takes in list, and posistion(row,column)
+  // and returns true if it's black
+  // false if not
+  def isBlack(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
+    if(puzzle_list(row)(column) == '0'){
+      return true
+    }
+    if(puzzle_list(row)(column) == '1'){
+      return true
+    }
+    if(puzzle_list(row)(column) == '2'){
+      return true
+    }
+    if(puzzle_list(row)(column) == '3'){
+      return true
+    }
+    if(puzzle_list(row)(column) == '4'){
+      return true
+    }
+    if(puzzle_list(row)(column) == 'X'){
+      return true
+    }
+    return false
+  }
 
   // OLD FUNCTIONS BELOW:
   /*
