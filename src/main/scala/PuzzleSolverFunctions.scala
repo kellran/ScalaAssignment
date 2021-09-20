@@ -1,12 +1,107 @@
-import PuzzleReaderWriter.{lines, linesArrayOfArray}
-
 object PuzzleSolverFunctions {
 
+  def lights(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val column = pos.head._2
+
+      val up = light(puzzle,row,column, 'X', 'U')
+      val down = light(up,row,column, 'X', 'D')
+      val left = light(down,row,column, 'X', 'L')
+      val right = light(left,row,column, 'X', 'R')
+
+      return lights(right,pos.drop(1))
+    }
+    return puzzle
+  }
+
+
+  def light(puzzle: Puzzle, row:Int, column:Int, char: Char, direction:Char): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzlelist = puzzle.puzzle
+
+    direction.toUpper match {
+      case 'U' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
+          light(newpuzzle, row - 1, column, char, direction)
+        }
+        else return puzzle
+      }
+      case 'D' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
+          light(newpuzzle, row + 1, column, char, direction)
+        }
+        else return puzzle
+      }
+      case 'L' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
+          light(newpuzzle, row, column - 1, char, direction)
+        }
+        else return puzzle
+      }
+      case 'R' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
+          light(newpuzzle, row, column + 1, char, direction)
+        }
+        else return puzzle
+      }
+      case _ => {
+        return puzzle
+      }
+    }
+  }
+
+  def count_until_char(puzzle: Puzzle, row:Int, column:Int, char: Char, direction:Char, char_count:Int): Int ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzlelist = puzzle.puzzle
+
+    direction.toUpper match {
+      case 'U' => {
+        if(validpos(row - 1, column, x , y) && puzzlelist(row - 1)(column) != char){
+          val count_update = char_count + 1
+          count_until_char(puzzle, row - 1, column, char, direction, count_update)
+        }
+        else return char_count
+      }
+      case 'D' => {
+        if(validpos(row + 1, column, x , y) && puzzlelist(row + 1)(column) != char){
+          val count_update = char_count + 1
+          count_until_char(puzzle, row + 1, column, char, direction, count_update)
+        }
+        else return char_count
+      }
+      case 'L' => {
+        if(validpos(row, column - 1, x , y) && puzzlelist(row)(column - 1) != char){
+          val count_update = char_count + 1
+          count_until_char(puzzle, row, column - 1, char, direction, count_update)
+        }
+        else return char_count
+      }
+      case 'R' => {
+        if(validpos(row, column + 1, x , y) && puzzlelist(row)(column + 1) != char){
+          val char_count_update = char_count + 1
+          count_until_char(puzzle, row, column + 1, char, direction, char_count_update)
+        }
+        else return char_count
+      }
+      case _ => {
+        return char_count
+      }
+    }
+  }
 
   def place_implicit(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
-    val puzzlelist = puzzle.puzzle
 
     if(pos.nonEmpty){
       val row = pos.head._1
@@ -25,8 +120,6 @@ object PuzzleSolverFunctions {
   // If the number of '_' equals it's number, add the posistion to the return list.
   // returns a list of all implicit landlocked tiles.
   def find_implicit_landlocked(puzzle:Puzzle,numbers:List[(Int,Int)], implicit_landlocked:List[(Int,Int)]): List[(Int,Int)] ={
-    val x = puzzle.sizeX
-    val y = puzzle.sizeY
     val liste = puzzle.puzzle
 
     if(numbers.nonEmpty){
@@ -37,24 +130,19 @@ object PuzzleSolverFunctions {
         val newlist:List[(Int,Int)] = implicit_landlocked :+ (row,column)
         return find_implicit_landlocked(puzzle ,numbers.drop(1) ,newlist)
       }
+      else find_implicit_landlocked(puzzle ,numbers.drop(1) ,implicit_landlocked)
     }
-    return implicit_landlocked
+    else return implicit_landlocked
   }
 
 
   // returns true if the posistion (row,column) of the list
   // is a "char", else false
-  def check_if_char_bool(puzzle: Puzzle, row:Int, column:Int, char: Char): Boolean ={
-    val x = puzzle.sizeX
-    val y = puzzle.sizeY
-    val puzzle_list = puzzle.puzzle
-    if(validpos(row ,column ,x ,y)){
-      if(puzzle_list(row)(column) == char){
-        return true
-      }
-      else false
+  def check_if_char_bool(puzzlelist:List[List[Char]], row:Int, column:Int, char: Char): Boolean ={
+    if(puzzlelist(row)(column) == char){
+      return true
     }
-    else false
+    false
   }
 
   // returns 1 if the posistion (row,column) of the list
@@ -63,6 +151,7 @@ object PuzzleSolverFunctions {
     val x = puzzle.sizeX
     val y = puzzle.sizeY
     val puzzle_list = puzzle.puzzle
+
     if(validpos(row ,column ,x ,y)){
       if(puzzle_list(row)(column) == char){
         return 1
@@ -86,7 +175,6 @@ object PuzzleSolverFunctions {
   }
 
   def all_number_pos(puzzle: Puzzle): List[(Int,Int)] ={
-    //val zero: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'0')
     val one: List[(Int,Int)] = find_pos_of_char(puzzle,List(),0,0,'1')
     val two: List[(Int,Int)] = one ++ find_pos_of_char(puzzle,List(),0,0,'2')
     val three: List[(Int,Int)] = two ++ find_pos_of_char(puzzle,List(),0,0,'3')
@@ -121,7 +209,6 @@ object PuzzleSolverFunctions {
   def place_landlocked(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
-    val puzzlelist = puzzle.puzzle
 
     if(pos.nonEmpty){
       val row = pos.head._1
@@ -130,6 +217,15 @@ object PuzzleSolverFunctions {
       val lamp = char_if_valid(puzzle,row,column,x,y,'*')
       return place_landlocked(lamp,pos.drop(1))
     }
+    return puzzle
+  }
+
+  def char_if_valid_Light(puzzle:Puzzle, row:Int, column:Int, x:Int, y:Int, char:Char): Puzzle ={
+    if(validpos_light(puzzle.puzzle,row,column,x, y)){
+      val newpuzzle = puzzle.setChar(row, column, char)
+      return newpuzzle
+    }
+
     return puzzle
   }
 
@@ -148,7 +244,6 @@ object PuzzleSolverFunctions {
   def greybox(puzzle:Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
-    val liste = puzzle.puzzle
 
     if(pos.nonEmpty){
       val row = pos.head._1
@@ -158,6 +253,7 @@ object PuzzleSolverFunctions {
       val down = char_if_valid(up,row + 1,column,x,y,'G')
       val left = char_if_valid(down ,row,column - 1,x,y,'G')
       val right = char_if_valid(left,row,column + 1,x,y,'G')
+
       return greybox(right,pos.drop(1))
     }
     return puzzle
@@ -229,6 +325,30 @@ object PuzzleSolverFunctions {
   }
 
   // returns true if the posistion (row,column)
+  // is a valid index & a white tile or grey tile
+  def validpos_light(liste:List[List[Char]], row:Int, column:Int, x:Int, y:Int):Boolean = {
+    if(row < 0 || row > y - 1){
+      return false
+    }
+    if(column < 0 || column > x - 1){
+      return false
+    }
+    if(isBlack(liste, row, column)) {
+        return false
+    }
+    if(check_if_char_bool(liste,row,column,'*')){
+      return false
+    }
+    if(isWhite(liste, row, column)){
+      return true
+    }
+    if(isGray(liste, row, column)){
+      return true
+    }
+    return true
+  }
+
+  // returns true if the posistion (row,column)
   // is a valid index & not a white tile
   def validpos_white(liste:List[List[Char]], row:Int, column:Int, x:Int, y:Int):Boolean = {
     if(row < 0 || row > y - 1){
@@ -242,6 +362,8 @@ object PuzzleSolverFunctions {
     }
     return true
   }
+
+
 
   // returns true if the posistion (row,column)
   // is a valid index
@@ -259,6 +381,13 @@ object PuzzleSolverFunctions {
   // is a white tile
   def isWhite(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
     if(puzzle_list(row)(column) == '_'){
+      return true
+    }
+    return false
+  }
+
+  def isGray(puzzle_list:List[List[Char]], row:Int, column:Int): Boolean ={
+    if(puzzle_list(row)(column) == 'G'){
       return true
     }
     return false
