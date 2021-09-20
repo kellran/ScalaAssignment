@@ -38,15 +38,20 @@ object PuzzleReaderWriter{
       .drop(2)
   }
 
-  /*
-  def solutionFormat(puzzle:Puzzle): Unit ={
-    val templist = puzzle
-    val finallist = {
-      templist.puzzle.foreach(templist => templist.foreach(templist => println(templist)))
+  def solutionFinisher(savedstate:Puzzle,pos:List[(Int,Int)]): Puzzle ={
+    val finalpuzzle = savedstate
+    val x = savedstate.sizeX
+    val y = savedstate.sizeY
+    if (pos.nonEmpty) {
+      val row = pos.head._1
+      val column = pos.head._2
+
+      val temppuzzle = (savedstate, row, column, x, y ,'*')
+
+      return solutionFinisher(temppuzzle,pos.drop(1))
     }
-    return finallist
+    return finalpuzzle
   }
-  */
 
   def putSolution(puzzle:Puzzle) ={
     fw.write("size "+puzzle.sizeX+"x"+puzzle.sizeY+"\n")

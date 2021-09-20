@@ -1,9 +1,11 @@
 puzzles 1
-size 7x7
-*______
-1G_*G__
-*0G20G_
-XG_*G__
-X____G_
-*___G0G
-2*X__G_
+size 13x9
+1___XXX____XX
+__X_1__1X1_G0
+___XX___X0G_G
+_1XG_X_1LG__G
+X_X01__XL__G0
+GG_G__X0*XXXX
+001___G0L0G_X
+XG_11_XXLG_3_
+0G______1____
