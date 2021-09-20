@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution, puzzlelist, unsolvedToList}
-import PuzzleSolverFunctions.{all_number_pos, count_until_char, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, place_implicit, place_landlocked, sum_of_char, update_numbers}
+import PuzzleSolverFunctions.{all_number_pos, count_until_char, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, light, lights, place_implicit, place_landlocked, sum_of_char, update_numbers}
 
 object PuzzleSolver extends App{
 
@@ -60,12 +60,11 @@ object PuzzleSolver extends App{
 
     // Cast light from lamps
     val lamps = find_pos_of_char(greybox_puzzle3,List(),0,0,'*')
-    println(count_until_char(greybox_puzzle3, 1, 0, 'X', 'd', 0))
+    val light_puzzle = lights(greybox_puzzle3, lamps)
+    println("Light:")
+    light_puzzle.puzzle.foreach(x => println(x))
 
-
-
-
-    impl_land_puzzle
+    light_puzzle
   }
 
   initRW("puzzleFiles/puzzle_unsolved.txt","puzzleFiles/puzzle_solved.txt")
