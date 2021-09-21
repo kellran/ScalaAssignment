@@ -1,5 +1,5 @@
 import PuzzleReaderWriter.{closing, getNumPuzzles, getPuzzle, initRW, putSolution, puzzlelist, solutionFinisher, unsolvedToList}
-import PuzzleSolverFunctions.{all_number_pos, count_until_char, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, light, lights, place_implicit, place_landlocked, sum_of_char, update_numbers}
+import PuzzleSolverFunctions.{all_number_pos, count_char_until_black, count_until_char, find_implicit_grey, find_implicit_landlocked, find_landlocked, find_pos_of_char, greybox, light, lights, place_implicit, place_landlocked, sum_of_char, update_numbers}
 
 object PuzzleSolver extends App{
 
@@ -64,8 +64,19 @@ object PuzzleSolver extends App{
     println("Light:")
     light_puzzle.puzzle.foreach(x => println(x))
 
+    val greyboxes = find_pos_of_char(light_puzzle,List(),0,0,'G')
+    println("implicit greybox:")
+    println(find_implicit_grey(light_puzzle,greyboxes,List()))
+
+
+
+
+
+
     val solutionlamps = find_pos_of_char(light_puzzle,List(),0,0,'*')
     val solution = solutionFinisher(start_puzzle,solutionlamps)
+
+
 
     solution
   }

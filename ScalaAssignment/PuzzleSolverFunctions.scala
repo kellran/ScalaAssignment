@@ -1,23 +1,76 @@
 object PuzzleSolverFunctions {
 
+  def find_implicit_grey(puzzle:Puzzle,greys:List[(Int,Int)], implicit_grey:List[(Int,Int)]): List[(Int,Int)] ={
 
-  def lineLocked(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
-    val x = puzzle.sizeX
-    val y = puzzle.sizeY
+    if(greys.nonEmpty){
+      val row = greys.head._1
+      val column = greys.head._2
 
-    if(pos.nonEmpty){
-      val row = pos.head._1
-      val column = pos.head._2
+      val up = count_char_until_black(puzzle,row,column,'U','_',0)
+      val down = count_char_until_black(puzzle,row,column,'D','_',0)
+      val left = count_char_until_black(puzzle,row,column,'L','_',0)
+      val right = count_char_until_black(puzzle,row,column,'R','_',0)
 
+      val sum = up + down + left + right
+
+      if(sum == 1){
+        val newlist:List[(Int,Int)] = implicit_grey :+ (row,column)
+        return find_implicit_grey(puzzle ,greys.drop(1) ,newlist)
+      }
+      else find_implicit_grey(puzzle ,greys.drop(1) ,implicit_grey)
     }
+    else return implicit_grey
+  }
 
-    return puzzle
+
+  def count_char_until_black(puzzle: Puzzle, row:Int, column:Int, direction:Char, char: Char, white_count:Int): Int ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeX
+    val puzzlelist = puzzle.puzzle
+
+    direction.toUpper match {
+      case 'U' => {
+        if(validpos(row - 1, column, x , y) && (!isBlack(puzzlelist,row - 1,column))){
+          if(puzzlelist(row - 1)(column) == char){
+            val white_count_update = white_count + 1
+            return count_char_until_black(puzzle,row - 1, column, 'U', char, white_count_update)
+          }
+          return count_char_until_black(puzzle,row - 1, column,'U', char, white_count)
+        }
+      }
+      case 'D' => {
+        if(validpos(row + 1, column, x , y) && (!isBlack(puzzlelist,row + 1,column))){
+          if(puzzlelist(row + 1)(column) == char){
+            val white_count_update = white_count + 1
+            return count_char_until_black(puzzle,row + 1, column, 'D', char, white_count_update)
+          }
+          return count_char_until_black(puzzle,row + 1, column, 'D',char, white_count)
+        }
+      }
+      case 'L' => {
+        if(validpos(row, column - 1, x , y) && (!isBlack(puzzlelist,row,column - 1))){
+          if(puzzlelist(row)(column - 1) == char){
+            val white_count_update = white_count + 1
+            return count_char_until_black(puzzle,row, column - 1, 'L',char, white_count_update)
+          }
+          return count_char_until_black(puzzle,row, column - 1, 'L', char, white_count)
+        }
+      }
+      case 'R' => {
+        if(validpos(row, column + 1, x , y) && (!isBlack(puzzlelist,row,column + 1))){
+          if(puzzlelist(row)(column + 1) == char){
+            val white_count_update = white_count + 1
+            return count_char_until_black(puzzle,row, column + 1, 'R', char, white_count_update)
+          }
+          return count_char_until_black(puzzle,row, column + 1, 'R', char, white_count)
+        }
+      }
+    }
+    return white_count
+
   }
 
   def lights(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
-    val x = puzzle.sizeX
-    val y = puzzle.sizeY
-
     if(pos.nonEmpty){
       val row = pos.head._1
       val column = pos.head._2
@@ -431,53 +484,4 @@ object PuzzleSolverFunctions {
     }
     return false
   }
-
-  // OLD FUNCTIONS BELOW:
-  /*
-  //Simply places the lightbulb
-  def placeLightBulb(x:Int, y: Int):Boolean={
-    if (linesArrayOfArray(x)(y) != '_'){
-      return false
-    }
-    else {
-      linesArrayOfArray(x)(y) = '*'
-      return true
-    }
-  }
-
-  //Simply places the grey boxes
-  def placeGreyBox(x: Int, y:Int):Boolean={
-    if (linesArrayOfArray(x)(y) != '_'){
-      return false
-    }
-    else {
-      linesArrayOfArray(x)(y) = 'G'
-      return true
-    }
-  }
-
-  //Check if array-boxes around the chosen tile is only made up of either Ints (Boxes with numbers)
-  //or Xs (Black boxes without numbers). If this is true, then return true. Else return false
-  def landLocked(x: Int, y: String):Boolean={
-    return true
-  }
-
-  //Will run whenever a lightbulb is placed, lowering the value of numbers around it, pontetially
-  //reducing them to 0 and thus generating more grey boxes
-  def updateNumber(x: Any):Int={
-    return 1
-  }
-
-  //Will check if a numbered block only has 1 combination of lightbulb placements, then place the lightbubs accordingly.
-  def implicitLandlocked(x: Any):Boolean={
-    return true
-  }
-
-  //This will shine light from the lightbulbs that have been placed, the light overwrites grey boxes and empty tiles,
-  //but stops at black boxes or numbered boxes.
-  def shineLight(x: Boolean):String={
-    return "cbt"
-  }
-   */
-
 }
