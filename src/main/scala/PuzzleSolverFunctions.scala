@@ -1,5 +1,7 @@
 object PuzzleSolverFunctions {
 
+  //test comment
+
   def lights(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
