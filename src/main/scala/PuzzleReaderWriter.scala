@@ -1,4 +1,6 @@
 
+import PuzzleSolverFunctions.char_if_valid
+
 import java.io.FileWriter
 import scala.io._
 
@@ -39,18 +41,17 @@ object PuzzleReaderWriter{
   }
 
   def solutionFinisher(savedstate:Puzzle,pos:List[(Int,Int)]): Puzzle ={
-    val finalpuzzle = savedstate
     val x = savedstate.sizeX
     val y = savedstate.sizeY
     if (pos.nonEmpty) {
       val row = pos.head._1
       val column = pos.head._2
 
-      val temppuzzle = (savedstate, row, column, x, y ,'*')
+      val temppuzzle = char_if_valid(savedstate, row, column, x, y ,'*')
 
       return solutionFinisher(temppuzzle,pos.drop(1))
     }
-    return finalpuzzle
+    return savedstate
   }
 
   def putSolution(puzzle:Puzzle) ={
