@@ -1,7 +1,10 @@
 puzzles 1
-size 8x5
-*_*X____
-__2__2__
-0_____X_
-_*X1__XX
-*2XXXXXX
+size 4x8
+XXX*
+_*XX
+*3*_
+XXX*
+*1XX
+2_*X
+*_XX
+_XXX

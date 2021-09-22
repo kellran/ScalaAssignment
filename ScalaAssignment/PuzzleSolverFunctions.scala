@@ -6,16 +6,12 @@ object PuzzleSolverFunctions {
     puzzle.puzzle.foreach(x => println(x))
 
     //Update numbers automatically runs the greybox algorithm
-    //Any function that places lightbulbs other than landlocked, automatically runs the shine light algorithm
-
+    //Any function that places lightbulbs other than landlocked, automatically runs the update numbers algorithm
+    //and then the shine light algorithm
     val greybox = greybox_algorithm(startpuzzle)
-    val implicit_landlocked = implicit_landlocked_algorithm(greybox)
-    val greybox_implicit = implicit_grey_algorithm(implicit_landlocked)
-    val implicit_landlocked2 = implicit_landlocked_algorithm(greybox_implicit)
-    val implicit_landlocked3 = implicit_landlocked_algorithm(implicit_landlocked2)
-    val whitebox_implicit = implicit_white_algorithm(implicit_landlocked3)
+    val landlocked = landlocked_algorithm(greybox)
 
-    val finalpuzzle = whitebox_implicit
+    val finalpuzzle = algorithm_recursion(landlocked)
     return finalpuzzle
   }
 
@@ -51,7 +47,9 @@ object PuzzleSolverFunctions {
     println("Landlocked:")
     landlocked_puzzle.puzzle.foreach(x => println(x))
 
-    return landlocked_puzzle
+    val update_numbers = update_numbers_algorithm(landlocked_puzzle)
+
+    return update_numbers
   }
 
   // Find all implicit landlocked tiles and place lamps adjecent
@@ -63,7 +61,8 @@ object PuzzleSolverFunctions {
     println("Implicit landlocked:")
     impl_land_puzzle.puzzle.foreach(x => println(x))
 
-    val shine_light = shine_light_algorithm(impl_land_puzzle)
+    val update_numbers = update_numbers_algorithm(impl_land_puzzle)
+    val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
   }
@@ -88,7 +87,8 @@ object PuzzleSolverFunctions {
     println("grey implicits:")
     grey_implicit_puzzle.puzzle.foreach(x => println(x))
 
-    val shine_light = shine_light_algorithm(grey_implicit_puzzle)
+    val update_numbers = update_numbers_algorithm(grey_implicit_puzzle)
+    val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
   }
@@ -102,9 +102,24 @@ object PuzzleSolverFunctions {
     println("white implicits:")
     white_implicit_puzzle.puzzle.foreach(x => println(x))
 
-    val shine_light = shine_light_algorithm(white_implicit_puzzle)
+    val update_numbers = update_numbers_algorithm(white_implicit_puzzle)
+    val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
+  }
+
+  def algorithm_recursion(landlocked_puzzle: Puzzle): Puzzle ={
+
+    if(!isidentical(landlocked_puzzle, implicit_landlocked_algorithm(landlocked_puzzle))){
+      return algorithm_recursion(implicit_landlocked_algorithm(landlocked_puzzle))
+    }
+    if(!isidentical(landlocked_puzzle, implicit_grey_algorithm(landlocked_puzzle))){
+      return algorithm_recursion(implicit_grey_algorithm(landlocked_puzzle))
+    }
+    if(!isidentical(landlocked_puzzle, implicit_white_algorithm(landlocked_puzzle))){
+      return algorithm_recursion(implicit_white_algorithm(landlocked_puzzle))
+    }
+    else return landlocked_puzzle
   }
 
   def isidentical(old_puzzle: Puzzle, new_puzzle: Puzzle): Boolean ={
