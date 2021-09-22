@@ -56,6 +56,28 @@ object PuzzleSolverFunctions {
     }
   }
 
+  def find_implicit_white_grey(puzzle:Puzzle, white_grey:List[(Int,Int)], implicit_white_grey:List[(Int,Int)], count:Int): List[(Int,Int)] ={
+
+    if(white_grey.nonEmpty){
+      val row = white_grey.head._1
+      val column = white_grey.head._2
+
+      val up = count_char_until_black(puzzle,row,column,'U','_',0)
+      val down = count_char_until_black(puzzle,row,column,'D','_',0)
+      val left = count_char_until_black(puzzle,row,column,'L','_',0)
+      val right = count_char_until_black(puzzle,row,column,'R','_',0)
+
+      val sum = up + down + left + right
+
+      if(sum == count){
+        val newlist:List[(Int,Int)] = implicit_white_grey :+ (row,column)
+        return find_implicit_white_grey(puzzle ,white_grey.drop(1) ,newlist, count)
+      }
+      else find_implicit_white_grey(puzzle ,white_grey.drop(1) ,implicit_white_grey, count)
+    }
+    else return implicit_white_grey
+  }
+/*
   def find_implicit_grey(puzzle:Puzzle,greys:List[(Int,Int)], implicit_grey:List[(Int,Int)]): List[(Int,Int)] ={
 
     if(greys.nonEmpty){
@@ -76,7 +98,7 @@ object PuzzleSolverFunctions {
       else find_implicit_grey(puzzle ,greys.drop(1) ,implicit_grey)
     }
     else return implicit_grey
-  }
+  }*/
 
 
   def count_char_until_black(puzzle: Puzzle, row:Int, column:Int, direction:Char, char: Char, white_count:Int): Int ={
