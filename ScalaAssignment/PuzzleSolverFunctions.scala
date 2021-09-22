@@ -1,5 +1,61 @@
 object PuzzleSolverFunctions {
 
+  def place_implicits(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
+
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val column = pos.head._2
+
+      val up = place_implicit(puzzle,row,column, 'U')
+      val down = place_implicit(up,row,column, 'D')
+      val left = place_implicit(down,row,column, 'L')
+      val right = place_implicit(left,row,column, 'R')
+
+      return place_implicits(right,pos.drop(1))
+    }
+    return puzzle
+  }
+
+  def place_implicit(puzzle: Puzzle, row:Int, column:Int, direction:Char): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+    val puzzlelist = puzzle.puzzle
+
+    direction.toUpper match {
+      case 'U' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid(puzzle, row, column, x, y ,'*')
+          place_implicit(newpuzzle, row - 1, column, direction)
+        }
+        else return puzzle
+      }
+      case 'D' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid(puzzle, row, column, x, y ,'*')
+          place_implicit(newpuzzle, row + 1, column, direction)
+        }
+        else return puzzle
+      }
+      case 'L' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid(puzzle, row, column, x, y ,'*')
+          place_implicit(newpuzzle, row, column - 1, direction)
+        }
+        else return puzzle
+      }
+      case 'R' => {
+        if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
+          val newpuzzle = char_if_valid(puzzle, row, column, x, y ,'*')
+          place_implicit(newpuzzle, row, column + 1, direction)
+        }
+        else return puzzle
+      }
+      case _ => {
+        return puzzle
+      }
+    }
+  }
+
   def find_implicit_grey(puzzle:Puzzle,greys:List[(Int,Int)], implicit_grey:List[(Int,Int)]): List[(Int,Int)] ={
 
     if(greys.nonEmpty){
@@ -66,7 +122,7 @@ object PuzzleSolverFunctions {
         }
       }
     }
-    return white_count
+    return (white_count)
 
   }
 
@@ -75,10 +131,10 @@ object PuzzleSolverFunctions {
       val row = pos.head._1
       val column = pos.head._2
 
-      val up = light(puzzle,row,column, 'X', 'U')
-      val down = light(up,row,column, 'X', 'D')
-      val left = light(down,row,column, 'X', 'L')
-      val right = light(left,row,column, 'X', 'R')
+      val up = light(puzzle,row,column, 'U')
+      val down = light(up,row,column, 'D')
+      val left = light(down,row,column, 'L')
+      val right = light(left,row,column, 'R')
 
       return lights(right,pos.drop(1))
     }
@@ -86,7 +142,7 @@ object PuzzleSolverFunctions {
   }
 
 
-  def light(puzzle: Puzzle, row:Int, column:Int, char: Char, direction:Char): Puzzle ={
+  def light(puzzle: Puzzle, row:Int, column:Int, direction:Char): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
     val puzzlelist = puzzle.puzzle
@@ -95,28 +151,28 @@ object PuzzleSolverFunctions {
       case 'U' => {
         if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
           val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
-          light(newpuzzle, row - 1, column, char, direction)
+          light(newpuzzle, row - 1, column, direction)
         }
         else return puzzle
       }
       case 'D' => {
         if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
           val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
-          light(newpuzzle, row + 1, column, char, direction)
+          light(newpuzzle, row + 1, column, direction)
         }
         else return puzzle
       }
       case 'L' => {
         if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
           val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
-          light(newpuzzle, row, column - 1, char, direction)
+          light(newpuzzle, row, column - 1, direction)
         }
         else return puzzle
       }
       case 'R' => {
         if(validpos(row, column, x , y) && (!isBlack(puzzlelist,row,column))){
           val newpuzzle = char_if_valid_Light(puzzle, row, column, x, y ,'L')
-          light(newpuzzle, row, column + 1, char, direction)
+          light(newpuzzle, row, column + 1, direction)
         }
         else return puzzle
       }
