@@ -67,6 +67,7 @@ object PuzzleSolver extends App{
     // find grey implicits and place lamps in the white tile
     val greyboxes = find_pos_of_char(light_puzzle,List(),0,0,'G')
     val grey_implicits = find_implicit_grey(light_puzzle,greyboxes,List())
+    println(grey_implicits)
     val grey_implicit_puzzle = place_implicits(light_puzzle,grey_implicits)
     println("grey implicits:")
     grey_implicit_puzzle.puzzle.foreach(x => println(x))
@@ -79,7 +80,8 @@ object PuzzleSolver extends App{
 
     // find grey implicits and place lamps in the white tile
     val greyboxes2 = find_pos_of_char(light_puzzle2,List(),0,0,'G')
-    val grey_implicits2 = find_implicit_grey(light_puzzle2,greyboxes,List())
+    val grey_implicits2 = find_implicit_grey(light_puzzle2,greyboxes2,List())
+    println(grey_implicits2)
     val grey_implicit_puzzle2 = place_implicits(light_puzzle2,grey_implicits2)
     println("grey implicits:")
     grey_implicit_puzzle2.puzzle.foreach(x => println(x))
@@ -90,7 +92,7 @@ object PuzzleSolver extends App{
     val light_puzzle3 = lights(grey_implicit_puzzle2, lamps3)
     println("Light:")
     light_puzzle3.puzzle.foreach(x => println(x))
-    
+
     val solutionlamps = find_pos_of_char(light_puzzle3,List(),0,0,'*')
     val solution = solutionFinisher(start_puzzle,solutionlamps)
 

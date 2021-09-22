@@ -81,7 +81,7 @@ object PuzzleSolverFunctions {
 
   def count_char_until_black(puzzle: Puzzle, row:Int, column:Int, direction:Char, char: Char, white_count:Int): Int ={
     val x = puzzle.sizeX
-    val y = puzzle.sizeX
+    val y = puzzle.sizeY
     val puzzlelist = puzzle.puzzle
 
     direction.toUpper match {
