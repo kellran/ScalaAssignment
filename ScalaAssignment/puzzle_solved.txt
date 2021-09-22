@@ -1,7 +1,12 @@
 puzzles 1
-size 8x5
-*__X_*__
-__2*_2*_
-0_*___X*
-_*X1*_XX
-*2XXXXXX
+size 9x10
+XXX*X*X1X
+XXXX_1_*_
+XX_1_XX_*
+*X___XXXX
+XX2__XXX*
+XX*X__*_X
+X*XXXX_1*
+XX0_XXX_X
+1X_*_X2*X
+*_XXXX*__
