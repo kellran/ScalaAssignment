@@ -1,5 +1,123 @@
 object PuzzleSolverFunctions {
 
+  def main_algorithm(puzzle: Puzzle): Puzzle ={
+    val startpuzzle = puzzle
+    println("Start:")
+    puzzle.puzzle.foreach(x => println(x))
+
+    //Update numbers automatically runs the greybox algorithm
+    //Any function that places lightbulbs other than landlocked, automatically runs the shine light algorithm
+
+    val greybox = greybox_algorithm(startpuzzle)
+    val implicit_landlocked = implicit_landlocked_algorithm(greybox)
+    val greybox_implicit = implicit_grey_algorithm(implicit_landlocked)
+    val implicit_landlocked2 = implicit_landlocked_algorithm(greybox_implicit)
+    val implicit_landlocked3 = implicit_landlocked_algorithm(implicit_landlocked2)
+    val whitebox_implicit = implicit_white_algorithm(implicit_landlocked3)
+
+    val finalpuzzle = whitebox_implicit
+    return finalpuzzle
+  }
+
+  // Find all zeros, and add greyboxes.
+  def greybox_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val zeros = find_pos_of_char(puzzle,List(),0,0,'0')
+    val greybox_puzzle = greybox(puzzle,zeros)
+    println("Greybox:")
+    greybox_puzzle.puzzle.foreach(x => println(x))
+
+    return greybox_puzzle
+  }
+
+  // Find all numbers and update numbers
+  def update_numbers_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val numbers = all_number_pos(puzzle)
+    val numbers_puzzle = update_numbers(puzzle,puzzle,numbers)
+    println("Numbers update:")
+    numbers_puzzle.puzzle.foreach(x => println(x))
+
+    val greybox = greybox_algorithm(numbers_puzzle)
+
+    return greybox
+  }
+
+  // Find all landlocked tiles and place lamps
+  def landlocked_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val landlocked_tiles = find_landlocked(puzzle,List(),0,0)
+    val landlocked_puzzle = place_landlocked(puzzle,landlocked_tiles)
+    println("Landlocked:")
+    landlocked_puzzle.puzzle.foreach(x => println(x))
+
+    return landlocked_puzzle
+  }
+
+  // Find all implicit landlocked tiles and place lamps adjecent
+  def implicit_landlocked_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val numbers = all_number_pos(puzzle)
+    val impl_land = find_implicit_landlocked(puzzle,numbers,List())
+    val impl_land_puzzle = place_implicit(puzzle,impl_land)
+    println("Implicit landlocked:")
+    impl_land_puzzle.puzzle.foreach(x => println(x))
+
+    val shine_light = shine_light_algorithm(impl_land_puzzle)
+
+    return shine_light
+  }
+
+  // Cast light from lamps
+  def shine_light_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val lamps = find_pos_of_char(puzzle,List(),0,0,'*')
+    val light_puzzle = lights(puzzle, lamps)
+    println("Light:")
+    light_puzzle.puzzle.foreach(x => println(x))
+
+    return light_puzzle
+  }
+
+  // find grey implicits and place lamps in the white tile
+  def implicit_grey_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val greyboxes = find_pos_of_char(puzzle,List(),0,0,'G')
+    val grey_implicits = find_implicit_white_grey(puzzle,greyboxes,List(), 1)
+    val grey_implicit_puzzle = place_implicits(puzzle,grey_implicits)
+    println("grey implicits:")
+    grey_implicit_puzzle.puzzle.foreach(x => println(x))
+
+    val shine_light = shine_light_algorithm(grey_implicit_puzzle)
+
+    return shine_light
+  }
+
+  // find white implicits and place lamps in the white tile
+  def implicit_white_algorithm(puzzle: Puzzle): Puzzle ={
+
+    val whiteboxes = find_pos_of_char(puzzle,List(),0,0,'_')
+    val white_implicits = find_implicit_white_grey(puzzle,whiteboxes,List(), 0)
+    val white_implicit_puzzle = place_implicits(puzzle,white_implicits)
+    println("white implicits:")
+    white_implicit_puzzle.puzzle.foreach(x => println(x))
+
+    val shine_light = shine_light_algorithm(white_implicit_puzzle)
+
+    return shine_light
+  }
+
+  def isidentical(old_puzzle: Puzzle, new_puzzle: Puzzle): Boolean ={
+    val list_old = old_puzzle.puzzle
+    val list_new = new_puzzle.puzzle
+
+    if (list_old == list_new){
+      return true
+    }
+    return false
+  }
+
+
   def place_implicits(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
 
     if(pos.nonEmpty){
