@@ -1,5 +1,6 @@
 object PuzzleSolverFunctions {
 
+
   def main_algorithm(puzzle: Puzzle): Puzzle ={
     val startpuzzle = puzzle
     println("Start:")
@@ -9,9 +10,9 @@ object PuzzleSolverFunctions {
     //Any function that places lightbulbs other than landlocked, automatically runs the update numbers algorithm
     //and then the shine light algorithm
     val greybox = greybox_algorithm(startpuzzle)
-    val landlocked = landlocked_algorithm(greybox)
+    val landlocked = landlocked_algorithm(greybox, startpuzzle)
 
-    val finalpuzzle = algorithm_recursion(landlocked)
+    val finalpuzzle = algorithm_recursion(landlocked,startpuzzle)
     return finalpuzzle
   }
 
@@ -27,10 +28,10 @@ object PuzzleSolverFunctions {
   }
 
   // Find all numbers and update numbers
-  def update_numbers_algorithm(puzzle: Puzzle): Puzzle ={
+  def update_numbers_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val numbers = all_number_pos(puzzle)
-    val numbers_puzzle = update_numbers(puzzle,puzzle,numbers)
+    val numbers_puzzle = update_numbers(puzzle, savedstate, numbers)
     println("Numbers update:")
     numbers_puzzle.puzzle.foreach(x => println(x))
 
@@ -40,20 +41,20 @@ object PuzzleSolverFunctions {
   }
 
   // Find all landlocked tiles and place lamps
-  def landlocked_algorithm(puzzle: Puzzle): Puzzle ={
+  def landlocked_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val landlocked_tiles = find_landlocked(puzzle,List(),0,0)
     val landlocked_puzzle = place_landlocked(puzzle,landlocked_tiles)
     println("Landlocked:")
     landlocked_puzzle.puzzle.foreach(x => println(x))
 
-    val update_numbers = update_numbers_algorithm(landlocked_puzzle)
+    val update_numbers = update_numbers_algorithm(landlocked_puzzle,savedstate)
 
     return update_numbers
   }
 
   // Find all implicit landlocked tiles and place lamps adjecent
-  def implicit_landlocked_algorithm(puzzle: Puzzle): Puzzle ={
+  def implicit_landlocked_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val numbers = all_number_pos(puzzle)
     val impl_land = find_implicit_landlocked(puzzle,numbers,List())
@@ -61,7 +62,7 @@ object PuzzleSolverFunctions {
     println("Implicit landlocked:")
     impl_land_puzzle.puzzle.foreach(x => println(x))
 
-    val update_numbers = update_numbers_algorithm(impl_land_puzzle)
+    val update_numbers = update_numbers_algorithm(impl_land_puzzle, savedstate)
     val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
@@ -79,7 +80,7 @@ object PuzzleSolverFunctions {
   }
 
   // find grey implicits and place lamps in the white tile
-  def implicit_grey_algorithm(puzzle: Puzzle): Puzzle ={
+  def implicit_grey_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val greyboxes = find_pos_of_char(puzzle,List(),0,0,'G')
     val grey_implicits = find_implicit_white_grey(puzzle,greyboxes,List(), 1)
@@ -87,14 +88,14 @@ object PuzzleSolverFunctions {
     println("grey implicits:")
     grey_implicit_puzzle.puzzle.foreach(x => println(x))
 
-    val update_numbers = update_numbers_algorithm(grey_implicit_puzzle)
+    val update_numbers = update_numbers_algorithm(grey_implicit_puzzle, savedstate)
     val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
   }
 
   // find white implicits and place lamps in the white tile
-  def implicit_white_algorithm(puzzle: Puzzle): Puzzle ={
+  def implicit_white_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val whiteboxes = find_pos_of_char(puzzle,List(),0,0,'_')
     val white_implicits = find_implicit_white_grey(puzzle,whiteboxes,List(), 0)
@@ -102,22 +103,22 @@ object PuzzleSolverFunctions {
     println("white implicits:")
     white_implicit_puzzle.puzzle.foreach(x => println(x))
 
-    val update_numbers = update_numbers_algorithm(white_implicit_puzzle)
+    val update_numbers = update_numbers_algorithm(white_implicit_puzzle, savedstate)
     val shine_light = shine_light_algorithm(update_numbers)
 
     return shine_light
   }
 
-  def algorithm_recursion(landlocked_puzzle: Puzzle): Puzzle ={
+  def algorithm_recursion(landlocked_puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
-    if(!isidentical(landlocked_puzzle, implicit_landlocked_algorithm(landlocked_puzzle))){
-      return algorithm_recursion(implicit_landlocked_algorithm(landlocked_puzzle))
+    if(!isidentical(landlocked_puzzle, implicit_landlocked_algorithm(landlocked_puzzle, savedstate))){
+      return algorithm_recursion(implicit_landlocked_algorithm(landlocked_puzzle,savedstate),savedstate)
     }
-    if(!isidentical(landlocked_puzzle, implicit_grey_algorithm(landlocked_puzzle))){
-      return algorithm_recursion(implicit_grey_algorithm(landlocked_puzzle))
+    if(!isidentical(landlocked_puzzle, implicit_grey_algorithm(landlocked_puzzle,savedstate))){
+      return algorithm_recursion(implicit_grey_algorithm(landlocked_puzzle,savedstate),savedstate)
     }
-    if(!isidentical(landlocked_puzzle, implicit_white_algorithm(landlocked_puzzle))){
-      return algorithm_recursion(implicit_white_algorithm(landlocked_puzzle))
+    if(!isidentical(landlocked_puzzle, implicit_white_algorithm(landlocked_puzzle,savedstate))){
+      return algorithm_recursion(implicit_white_algorithm(landlocked_puzzle,savedstate),savedstate)
     }
     else return landlocked_puzzle
   }
@@ -130,6 +131,23 @@ object PuzzleSolverFunctions {
       return true
     }
     return false
+  }
+
+
+
+  def place_illegal(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+
+    if(pos.nonEmpty){
+      val row = pos.head._1
+      val column = pos.head._2
+
+      val updated = char_if_valid(puzzle, row, column, x, y, 'G')
+      return place_illegal(updated,pos.drop(1))
+    }
+    return puzzle
+
   }
 
 
@@ -210,29 +228,6 @@ object PuzzleSolverFunctions {
     }
     else return implicit_white_grey
   }
-/*
-  def find_implicit_grey(puzzle:Puzzle,greys:List[(Int,Int)], implicit_grey:List[(Int,Int)]): List[(Int,Int)] ={
-
-    if(greys.nonEmpty){
-      val row = greys.head._1
-      val column = greys.head._2
-
-      val up = count_char_until_black(puzzle,row,column,'U','_',0)
-      val down = count_char_until_black(puzzle,row,column,'D','_',0)
-      val left = count_char_until_black(puzzle,row,column,'L','_',0)
-      val right = count_char_until_black(puzzle,row,column,'R','_',0)
-
-      val sum = up + down + left + right
-
-      if(sum == 1){
-        val newlist:List[(Int,Int)] = implicit_grey :+ (row,column)
-        return find_implicit_grey(puzzle ,greys.drop(1) ,newlist)
-      }
-      else find_implicit_grey(puzzle ,greys.drop(1) ,implicit_grey)
-    }
-    else return implicit_grey
-  }*/
-
 
   def count_char_until_black(puzzle: Puzzle, row:Int, column:Int, direction:Char, char: Char, white_count:Int): Int ={
     val x = puzzle.sizeX

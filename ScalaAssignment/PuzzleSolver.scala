@@ -11,11 +11,11 @@ object PuzzleSolver extends App{
     val solutionlamps = find_pos_of_char(finalpuzzle,List(),0,0,'*')
     val solution = solutionFinisher(start_puzzle,solutionlamps)
     solution
+
   }
 
   initRW("puzzle_unsolved.txt","puzzle_solved.txt")
   val numPuzzles=getNumPuzzles()
-
 
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
