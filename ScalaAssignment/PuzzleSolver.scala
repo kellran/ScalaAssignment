@@ -9,6 +9,8 @@ object PuzzleSolver extends App{
     val start_puzzle = new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzlelist)
     val finalpuzzle = main_algorithm(start_puzzle)
     val solutionlamps = find_pos_of_char(finalpuzzle,List(),0,0,'*')
+    // println("________________________________")
+    //illegal_algorithm(finalpuzzle)
     val solution = solutionFinisher(start_puzzle,solutionlamps)
     solution
 
@@ -19,7 +21,7 @@ object PuzzleSolver extends App{
 
   for (count<- 0 until numPuzzles) {
     println("Solving puzzle #"+(count+1).toString)
-    putSolution(solveCustom(getPuzzle(count)))
+     putSolution(solveCustom(getPuzzle(count)))
   }
 
   closing()

@@ -95,6 +95,13 @@ object PuzzleSolverFunctions {
   }
 
   // find white implicits and place lamps in the white tile
+
+  /**
+   *
+   * @param Current puzzle
+   * @param savedstate
+   * @return
+   */
   def implicit_white_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     val whiteboxes = find_pos_of_char(puzzle,List(),0,0,'_')
@@ -109,6 +116,17 @@ object PuzzleSolverFunctions {
     return shine_light
   }
 
+  def illegal_algorithm(puzzle: Puzzle): Puzzle ={
+    val whiteboxes = find_pos_of_char(puzzle,List(),0,0,'_')
+    val illegal_pos = find_illegals(puzzle, whiteboxes, List())
+    val illegal_puzzle = place_illegal(puzzle, illegal_pos)
+
+    println("Illegals: ")
+    illegal_puzzle.puzzle.foreach(x => println(x))
+
+    return illegal_puzzle
+  }
+
   def algorithm_recursion(landlocked_puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
 
     if(!isidentical(landlocked_puzzle, implicit_landlocked_algorithm(landlocked_puzzle, savedstate))){
@@ -119,6 +137,9 @@ object PuzzleSolverFunctions {
     }
     if(!isidentical(landlocked_puzzle, implicit_white_algorithm(landlocked_puzzle,savedstate))){
       return algorithm_recursion(implicit_white_algorithm(landlocked_puzzle,savedstate),savedstate)
+    }
+    if(!isidentical(landlocked_puzzle, illegal_algorithm(landlocked_puzzle))){
+      return algorithm_recursion(illegal_algorithm(landlocked_puzzle),savedstate)
     }
     else return landlocked_puzzle
   }
@@ -133,8 +154,6 @@ object PuzzleSolverFunctions {
     return false
   }
 
-
-
   def place_illegal(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
@@ -148,6 +167,48 @@ object PuzzleSolverFunctions {
     }
     return puzzle
 
+  }
+
+  def find_illegals(puzzle: Puzzle, remaining_whites:List[(Int,Int)], illegals:List[(Int,Int)]): List[(Int,Int)] ={
+    val numbers = all_number_pos(puzzle)
+
+    if(remaining_whites.nonEmpty){
+      val row = remaining_whites.head._1
+      val column = remaining_whites.head._2
+
+      val test = puzzle.setChar(row,column, '*')
+      val test2 = shine_light_algorithm(test)
+
+      if(!validate_all_numbers(test2,numbers)){
+        val illegals_updated = illegals :+ (row,column)
+        return find_illegals(puzzle, remaining_whites.drop(1), illegals_updated)
+      }
+      return find_illegals(puzzle, remaining_whites.drop(1), illegals)
+    }
+    return illegals
+  }
+
+  def validate_all_numbers(puzzle: Puzzle, numbers: List[(Int, Int)]): Boolean ={
+
+    if(numbers.nonEmpty){
+      val row = numbers.head._1
+      val column = numbers.head._2
+
+      if(!validate_number(puzzle, row, column)){
+        return false
+      }
+      return validate_all_numbers(puzzle,numbers.drop(1))
+    }
+    return true
+  }
+
+  def validate_number(puzzle: Puzzle ,row:Int ,column:Int): Boolean ={
+    val puzzlelist = puzzle.puzzle
+
+    if(puzzlelist(row)(column).asDigit <= sum_of_char(puzzle,row,column,'_')){
+      return true
+    }
+    return false
   }
 
 
