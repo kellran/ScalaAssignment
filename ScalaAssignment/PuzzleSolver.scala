@@ -8,12 +8,20 @@ object PuzzleSolver extends App{
     unsolvedToList()
     val start_puzzle = new Puzzle(puzzle.sizeX, puzzle.sizeY, puzzlelist)
     val finalpuzzle = main_algorithm(start_puzzle)
-    val solutionlamps = find_pos_of_char(finalpuzzle,List(),0,0,'*')
-    // println("________________________________")
-    //illegal_algorithm(finalpuzzle)
-    val solution = solutionFinisher(start_puzzle,solutionlamps)
-    solution
 
+
+    if(find_pos_of_char(finalpuzzle,List(),0,0,'_').nonEmpty){
+      println("Algorithm not enough, forced to bruteforce! \n")
+      val bruteforce = bruteforce_algorithm(finalpuzzle, start_puzzle)
+      val solutionlamps = find_pos_of_char(bruteforce,List(),0,0,'*')
+      val solution = solutionFinisher(start_puzzle,solutionlamps)
+      solution
+    }
+    else{
+      val solutionlamps = find_pos_of_char(finalpuzzle,List(),0,0,'*')
+      val solution = solutionFinisher(start_puzzle,solutionlamps)
+      solution
+    }
   }
 
   initRW("puzzle_unsolved.txt","puzzle_solved.txt")
