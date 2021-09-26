@@ -154,6 +154,45 @@ object PuzzleSolverFunctions {
     return false
   }
 
+  def bruteforce_algorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
+
+    val whitepos = find_pos_of_char(puzzle,List(),0,0,'_')
+    val bruteforce_attempt = bruteforce_recursion(puzzle, whitepos, savedstate)
+
+    if(all_number_pos(bruteforce_attempt).nonEmpty){
+      return bruteforce_algorithm(puzzle,savedstate)
+    }
+    if(find_pos_of_char(bruteforce_attempt,List(),0,0,'G').nonEmpty){
+      return bruteforce_algorithm(puzzle,savedstate)
+    }
+
+    return bruteforce_attempt
+  }
+
+
+  def bruteforce_recursion(puzzle: Puzzle, whites:List[(Int,Int)], savedstate:Puzzle): Puzzle ={
+    val r = scala.util.Random
+
+    if(whites.nonEmpty){
+
+      val randomnumber = r.nextInt(whites.length)
+      val randomindex = whites(randomnumber)
+
+      val row = randomindex._1
+      val column = randomindex._2
+
+      val bruteforce_puzzle = puzzle.setChar(row,column, '*')
+
+
+      val update_numbers = update_numbers_algorithm(bruteforce_puzzle, savedstate)
+      val shine_light = shine_light_algorithm(update_numbers)
+
+      val whites_updated = find_pos_of_char(shine_light,List(),0,0,'_')
+      return bruteforce_recursion(shine_light, whites_updated, savedstate)
+    }
+    return puzzle
+  }
+
   def place_illegal(puzzle: Puzzle, pos:List[(Int,Int)]): Puzzle ={
     val x = puzzle.sizeX
     val y = puzzle.sizeY
