@@ -1,12 +1,12 @@
 object PuzzleSolverFunctions {
   /**
+   * Update numbers automatically runs the greybox algorithm
+   * Any function that places lamps, automatically runs the update numbers algorithm
+   * Any function that places lamps other than landlocked, automatically runs the shine light algorithm
    * @param startPuzzle Start puzzle which we will use our algorithm to solve
    * @return finalPuzzle - puzzle updated by main algorithm
    */
   def mainAlgorithm(startPuzzle: Puzzle): Puzzle ={
-    //Update numbers automatically runs the greybox algorithm
-    //Any function that places lamps, automatically runs the update numbers algorithm
-    //Any function that places lamps other than landlocked, automatically runs the shine light algorithm
     val greyBox = greyBoxAlgorithm(startPuzzle)
     val landlocked = landlockedAlgorithm(greyBox, startPuzzle)
 
@@ -14,13 +14,12 @@ object PuzzleSolverFunctions {
     return finalPuzzle
   }
 
-  // Find all zeros, and add grey boxes adjacent.
   /**
+   * Find all zeros, and add grey boxes adjacent.
    * @param puzzle puzzle class to add grey boxes to
    * @return puzzle class updated with grey boxes
    */
   def greyBoxAlgorithm(puzzle: Puzzle): Puzzle ={
-
     val zeros = findPosOfChar(puzzle,List(),0,0,'0')
     val greyBoxPuzzle = greyBox(puzzle,zeros)
     //println("Greybox:")
@@ -29,50 +28,45 @@ object PuzzleSolverFunctions {
     return greyBoxPuzzle
   }
 
-  // Find all numbers and update numbers according to amount of lamps adjacent
   /**
+   * Find all numbers and update numbers according to amount of lamps adjacent
    * @param puzzle puzzle class to update numbers to
    * @param savedState original puzzle class unaltered
    * @return puzzle with numberes updated and added
    */
   def updateNumbersAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     val numbers = allNumberPos(puzzle)
     val numbersPuzzle = updateNumbers(puzzle, savedState, numbers)
     //println("Numbers update:")
     //numbers_puzzle.puzzle.foreach(x => println(x))
 
     val greyBox = greyBoxAlgorithm(numbersPuzzle)
-
     return greyBox
   }
 
-  // Find all landlocked tiles and place lamps in them
   /**
+   * Find all landlocked tiles and place lamps in them
    * @param puzzle puzzle class to add lamps to landlocked tiles
    * @param savedState original puzzle class unaltered
    * @return puzzle with lamps added into landlocked tiles
    */
   def landlockedAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     val landlockedTiles = findLandlocked(puzzle,List(),0,0)
     val landlockedPuzzle = placeLandlocked(puzzle, landlockedTiles)
     //println("Landlocked:")
     //landlocked_puzzle.puzzle.foreach(x => println(x))
 
     val updateNumbers = updateNumbersAlgorithm(landlockedPuzzle,savedState)
-
     return updateNumbers
   }
 
-  // Find all implicit landlocked tiles and place lamps adjacent
   /**
+   * Find all implicit landlocked tiles and place lamps adjacent
    * @param puzzle puzzle class to add lamps to implicit landlocked tiles
    * @param savedState original puzzle class unaltered
    * @return puzzle with lamps added into implicit landlocked tiles
    */
   def implicitLandlockedAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     val numbers = allNumberPos(puzzle)
     val implicitLand = findImplicitLandlocked(puzzle,numbers,List())
     val implicitLandPuzzle = placeImplicitNumber(puzzle,implicitLand)
@@ -81,17 +75,15 @@ object PuzzleSolverFunctions {
 
     val updateNumbers = updateNumbersAlgorithm(implicitLandPuzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
-
     return shineLight
   }
 
-  // Cast light from lamps
   /**
+   * Cast light from lamps
    * @param puzzle puzzle class to shine light from lamps
    * @return puzzle class with lamps shining light
    */
   def shineLightAlgorithm(puzzle: Puzzle): Puzzle ={
-
     val lamps = findPosOfChar(puzzle,List(),0,0,'*')
     val lightPuzzle = lights(puzzle, lamps)
     //println("Light:")
@@ -100,14 +92,13 @@ object PuzzleSolverFunctions {
     return lightPuzzle
   }
 
-  // Find grey implicits and place lamps in the white tile
   /**
+   * Find grey implicits and place lamps in the white tile
    * @param puzzle puzzle class to add lamps to implicit grey landlocked tiles
    * @param savedState original puzzle class unaltered
    * @return puzzle with lamps added into implicit grey landlocked tiles
    */
   def implicitGreyAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     val greyBoxes = findPosOfChar(puzzle,List(),0,0,'G')
     val greyImplicits = findImplicitWhiteGrey(puzzle,greyBoxes,List(), 1)
     val greyImplicitsPuzzle = placeImplicitsWhiteGrey(puzzle,greyImplicits)
@@ -116,19 +107,16 @@ object PuzzleSolverFunctions {
 
     val updateNumbers = updateNumbersAlgorithm(greyImplicitsPuzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
-
     return shineLight
   }
 
-  // Find white implicits and place lamps in the white tile
-
   /**
+   * Find white implicits and place lamps in the white tile
    * @param puzzle puzzle class to add lamps to implicit white landlocked tiles
    * @param savedState original puzzle class unaltered
    * @return puzzle with lamps added into implicit white landlocked tiles
    */
   def implicitWhiteAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     val whiteBoxes = findPosOfChar(puzzle,List(),0,0,'_')
     val whiteImplicits = findImplicitWhiteGrey(puzzle,whiteBoxes,List(), 0)
     val white_implicit_puzzle = placeImplicitsWhiteGrey(puzzle,whiteImplicits)
@@ -137,12 +125,11 @@ object PuzzleSolverFunctions {
 
     val updateNumbers = updateNumbersAlgorithm(white_implicit_puzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
-
     return shineLight
   }
 
-  // Find illegal positions and add grey boxes in them
   /**
+   * Find illegal positions and add grey boxes in them
    * @param puzzle puzzle class to add grey boxes to illegal positions
    * @return puzzle class with grey boxes in illegal positions
    */
@@ -153,18 +140,16 @@ object PuzzleSolverFunctions {
 
     //println("Illegals: ")
     //illegal_puzzle.puzzle.foreach(x => println(x))
-
     return illegalPuzzle
   }
 
-  // Continuously run algorithm until algorithm is done
   /**
+   * Continuously runs the solving algorithm until algorithm is changes nothing.
    * @param landlockedPuzzle puzzle class to run the main algorithm on
    * @param savedState original puzzle class unaltered
    * @return puzzle class updated with the main algorithm
    */
   def algorithmRecursion(landlockedPuzzle: Puzzle, savedState:Puzzle): Puzzle ={
-
     if(!isIdentical(landlockedPuzzle, implicitLandlockedAlgorithm(landlockedPuzzle, savedState))){
       return algorithmRecursion(implicitLandlockedAlgorithm(landlockedPuzzle,savedState),savedState)
     }
@@ -180,8 +165,8 @@ object PuzzleSolverFunctions {
     else return landlockedPuzzle
   }
 
-  // Check if two puzzles are identical
   /**
+   * Check if two puzzles are identical
    * @param oldPuzzle old puzzle to compare to newPuzzle
    * @param newPuzzle new puzzle to compare to oldPuzzle
    * @return true/false based on if they're identical
@@ -196,16 +181,15 @@ object PuzzleSolverFunctions {
     return false
   }
 
-  // Bruteforce algorithm if main algorithm isn't enough
-  // places lamps in random positions and checks if it's correct
-  // repeat if not.
   /**
+   * Bruteforce algorithm if main algorithm isn't enough
+   * places lamps in random positions and checks if it's correct
+   * repeat if not.
    * @param
    * @param
    * @return
    */
   def bruteforceAlgorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
-
     val whitePos = findPosOfChar(puzzle,List(),0,0,'_')
     val bruteforceAttempt = bruteforceRecursionOLD(puzzle, whitePos, savedstate)
 
@@ -215,7 +199,6 @@ object PuzzleSolverFunctions {
     if(findPosOfChar(bruteforceAttempt,List(),0,0,'G').nonEmpty){
       return bruteforceAlgorithm(puzzle,savedstate)
     }
-
     return bruteforceAttempt
   }
 
@@ -248,10 +231,8 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-
-
-  // Places grey box in position deemed illegal
   /**
+   * Places grey box in position deemed illegal
    * @param puzzle puzzle class to fill in illegal position in
    * @param listOfIllegals position of all illegal positions in puzzle class
    * @return puzzle with all illegal positions filled with grey boxes
@@ -271,8 +252,8 @@ object PuzzleSolverFunctions {
 
   }
 
-  // finds lamp positions that would break the game.
   /**
+   * finds lamp positions that would break the game.
    * @param puzzle puzzle class to check for illegal tiles in
    * @param remainingWhites position of all white tiles in puzzle class
    * @param listOfIllegals list of all illegal position in the puzzle class
@@ -297,8 +278,8 @@ object PuzzleSolverFunctions {
     return listOfIllegals
   }
 
-  // Checks if any numbers in the puzzle are unsolvable.
   /**
+   * Checks if any numbers in the puzzle are unsolvable.
    * @param puzzle puzzle class to check validity in
    * @param numbersPos position of all remaining numbers
    * @return true/false based on if the validity of all numbers remaining
@@ -317,8 +298,8 @@ object PuzzleSolverFunctions {
   }
 
 
-  // validates number, by checking if the number of the tile < adjacent white tiles
   /**
+   * validates number, by checking if the number of the tile < adjacent white tiles
    * @param puzzle puzzle class to check validity in
    * @param row which row to check
    * @param column which column to check
@@ -333,9 +314,9 @@ object PuzzleSolverFunctions {
     return false
   }
 
-  // Attempts to place lamps in white tiles towards all directions.
-  // used to place lamps in white/grey implicit tiles
   /**
+   * Attempts to place lamps in white tiles towards all directions.
+   * used to place lamps in white/grey implicit tiles
    * @param puzzle puzzle to place implicit in
    * @param implicitPos position of all implicits
    * @return puzzle with all implicit positions filled with lamps
@@ -356,11 +337,10 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-
-  // Attempts to place a lamp in a white tile towards
-  // a certain direction until it hits the end of the puzzle
-  // or a black tile
   /**
+   * Attempts to place a lamp in a white tile towards
+   * a certain direction until it hits the end of the puzzle
+   * or a black tile
    * @param puzzle puzzle to place implicit in
    * @param row start row to place from
    * @param column start column to place from
@@ -407,10 +387,10 @@ object PuzzleSolverFunctions {
     }
   }
 
-  // takes in positions of all white/grey tiles remaining
-  // and determines if they are implicit white/grey landlocked tiles.
-  // returns list of all implicits white/grey landlocked tiles.
   /**
+   * takes in positions of all white/grey tiles remaining
+   * and determines if they are implicit white/grey landlocked tiles.
+   * returns list of all implicits white/grey landlocked tiles.
    * @param puzzle Puzzle class to check for grey/white implicit landlocked tiles in
    * @param whiteGreyPos position of greys/whites tiles in puzzle
    * @param listOfImplicitWhiteGrey List of implicit greys/whites positions to later return
@@ -438,10 +418,10 @@ object PuzzleSolverFunctions {
     else return listOfImplicitWhiteGrey
   }
 
-  // Counts the amount of a specific character
-  // while moving towards a specified direction
-  // until it hits a black wall or the end of the puzzle.
   /**
+   * Counts the amount of a specific character
+   * while moving towards a specified direction
+   * until it hits a black wall or the end of the puzzle.
    * @param puzzle puzzle class to check in
    * @param row Start row of search
    * @param column Start column of search
@@ -494,11 +474,10 @@ object PuzzleSolverFunctions {
       }
     }
     return (countChar)
-
   }
 
-  // casts light in all directions from lamps
   /**
+   * casts light in all directions from lamps
    * @param puzzle puzzle class to add light into
    * @param lampsPos position of all lamps in puzzle
    * @return puzzle class with lights added in all directions from all lamp positions
@@ -518,9 +497,8 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-
-  // casts light in one direction from one lamp
   /**
+   * casts light in one direction from one lamp
    * @param puzzle Puzzle class to update with light
    * @param row start row for light
    * @param column start column for light
@@ -567,8 +545,8 @@ object PuzzleSolverFunctions {
     }
   }
 
-  // counts the distance until it hits a specific character
   /**
+   * counts the distance until it hits a specific character
    * @param puzzle puzzle class to check in
    * @param row Start row of search
    * @param column Start column of search
@@ -617,8 +595,8 @@ object PuzzleSolverFunctions {
     }
   }
 
-  // places lamps next to a numbered tile, if it's a valid pos
   /**
+   * places lamps next to a numbered tile, if it's a valid pos
    * @param puzzle Puzzle class to update
    * @param listOfImplicitLandlocked List of implicit landlocked tiles to place lamps adjacent to
    * @return puzzle class with implicit landlocked tiles updated with lamps
@@ -640,10 +618,10 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-  // takes the list of all numbers of the puzzle and checks each number.
-  // If the number of '_' equals it's number, add the posistion to the return list.
-  // returns a list of all implicit landlocked tiles.
   /**
+   * takes the list of all numbers of the puzzle and checks each number.
+   * If the number of '_' equals it's number, add the position to the return list.
+   * returns a list of all implicit landlocked tiles.
    * @param puzzle Puzzle class to check for landlocked tiles in
    * @param numbersPos position of numbers in puzzle class
    * @param listOfImplicitLandlocked List of char positions to later return
@@ -665,10 +643,9 @@ object PuzzleSolverFunctions {
     else return listOfImplicitLandlocked
   }
 
-
-  // returns true if the posistion (row,column) of the list
-  // is a "char", else false
   /**
+   * returns true if the posistion (row,column) of the list
+   * is a "char", else false
    * @param puzzleList puzzle list to check char in
    * @param row which row to check in
    * @param column which column to check in
@@ -682,9 +659,9 @@ object PuzzleSolverFunctions {
     false
   }
 
-  // returns 1 if the posistion (row,column) of the list
-  // is a "char", else 0
   /**
+   * returns 1 if the posistion (row,column) of the list
+   * is a "char", else 0
    * @param puzzle puzzle class to check char in
    * @param row which row to check in
    * @param column which column to check in
@@ -705,9 +682,9 @@ object PuzzleSolverFunctions {
     else 0
   }
 
-  // returns the number of char
-  // adjecent to tile, given a posistion(row,column).
   /**
+   * returns the number of char
+   * adjecent to tile, given a posistion(row,column).
    * @param puzzle puzzle class to check sum of char in
    * @param row which row to check in
    * @param column which column to check in
@@ -726,6 +703,7 @@ object PuzzleSolverFunctions {
   }
 
   /**
+   * returns a list of all remaining numbers positions
    * @param puzzle puzzle class to find all the numbers in
    * @return listOfAllNumbers contains positions of all numbered tiles(1-4) in form of List of tuple2, List[(Int, Int)]
    */
@@ -753,9 +731,9 @@ object PuzzleSolverFunctions {
     return puzzleUpdated
   }
 
-  // takes in positions of numbers and updates them
-  // with the update_number function.
   /**
+   * takes in positions of numbers and updates them
+   * with the update_number function.
    * @param puzzle puzzle class to update numbers in
    * @param savedState the original puzzle unchanged - used to calculate current number in numbered tile
    * @param numbersPos position of all numbers in the puzzle
@@ -770,10 +748,10 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-  // returns a new class, with greyboxes
-  // around 0 numbered black tiles
-  // found with the find_pos_zero function
   /**
+   * returns a new class, with greyboxes
+   * around 0 numbered black tiles
+   * found with the findPosOfChar function
    * @param puzzle puzzle class to place characters into
    * @param landlockedPos list of all landlocked tiles, List[(Int, Int)]
    * @return puzzle class with updated char in landlocked positions
@@ -791,6 +769,7 @@ object PuzzleSolverFunctions {
     }
     return puzzle
   }
+
   /**
    * @param puzzle puzzle class to check validity in
    * @param row wanted row placement of character
@@ -808,6 +787,7 @@ object PuzzleSolverFunctions {
 
     return puzzle
   }
+
   /**
    * @param puzzle puzzle class to check validity in
    * @param row wanted row placement of character
@@ -822,14 +802,13 @@ object PuzzleSolverFunctions {
       val updatedPuzzle = puzzle.setChar(row, column, char)
       return updatedPuzzle
     }
-
     return puzzle
   }
 
-  // returns a new class, with greyboxes
-  // around 0 numbered black tiles
-  // found with the find_pos_zero function
   /**
+   * returns a new class, with greyboxes
+   * around 0 numbered black tiles
+   * found with the find_pos_zero function
    * @param puzzle Puzzle class to check for landlocked tiles in
    * @param zeroPos List of zero numbered black tiles, in the form of: List[(Int,Int)]
    * @return puzzle class with updated grey boxes around zero
@@ -852,10 +831,10 @@ object PuzzleSolverFunctions {
     return puzzle
   }
 
-  // Checks each index in a 2d list
-  // and checks if each adjecent tile is black.
-  // returns a list of all 'landlocked tiles'
   /**
+   * Checks each index in a 2d list
+   * and checks if each adjecent tile is black.
+   * returns a list of all 'landlocked tiles
    * @param puzzle Puzzle class to check for landlocked tiles in
    * @param listOfLandlocked List of char positions to later return
    * @param row Start row of search
@@ -866,7 +845,6 @@ object PuzzleSolverFunctions {
     val x = puzzle.sizeX
     val y = puzzle.sizeY
     val puzzleList = puzzle.puzzle
-
 
     if (row > y - 1){
       return listOfLandlocked
@@ -887,9 +865,9 @@ object PuzzleSolverFunctions {
     return findLandlocked(puzzle,listOfLandlocked,row,column + 1)
   }
 
-  // returns posistions of given char
-  // in the form a list of tuples(row,column)
   /**
+   * returns posistions of given char
+   * in the form a list of tuples(row,column)
    * @param puzzle Puzzle class to check for char in
    * @param listOfChar List of char positions to later return
    * @param row Start row of search
@@ -917,9 +895,9 @@ object PuzzleSolverFunctions {
     }
   }
 
-  // returns true if the posistion (row,column) of the list
-  // is either a non valid index or a black tile
   /**
+   * returns true if the posistion (row,column) of the list
+   * is either a non valid index or a black tile
    * @param puzzleList puzzle state
    * @param row which row to check
    * @param column Which column to check
@@ -940,9 +918,9 @@ object PuzzleSolverFunctions {
     return false
   }
 
-  // returns true if the posistion (row,column)
-  // is a valid index & a white tile or grey tile
   /**
+   * returns true if the posistion (row,column)
+   * is a valid index & a white tile or grey tile
    * @param puzzleList puzzle state
    * @param row which row to check
    * @param column Which column to check
@@ -972,9 +950,9 @@ object PuzzleSolverFunctions {
     return true
   }
 
-  // returns true if the posistion (row,column)
-  // is a valid index & not a white tile
   /**
+   * returns true if the posistion (row,column)
+   * is a valid index & not a white tile
    * @param puzzleList puzzle state
    * @param row which row to check
    * @param column Which column to check
@@ -995,11 +973,9 @@ object PuzzleSolverFunctions {
     return true
   }
 
-
-
-  // returns true if the posistion (row,column)
-  // is a valid index
   /**
+   * returns true if the posistion (row,column)
+   * is a valid index
    * @param row which row to check
    * @param column Which column to check
    * @param x Size of puzzle in x direction
@@ -1016,9 +992,9 @@ object PuzzleSolverFunctions {
     return true
   }
 
-  // returns true if the pos
-  // is a white tile
   /**
+   * returns true if the pos
+   * is a white tile
    * @param puzzleList puzzle list
    * @param row which row to check
    * @param column Which column to check
@@ -1032,6 +1008,8 @@ object PuzzleSolverFunctions {
   }
 
   /**
+   * returns true if the pos
+   * is a grey tile
    * @param puzzleList puzzle state
    * @param row which row to check
    * @param column Which column to check
@@ -1044,10 +1022,10 @@ object PuzzleSolverFunctions {
     return false
   }
 
-  // function takes in list, and posistion(row,column)
-  // and returns true if it's black
-  // false if not
   /**
+   * function takes in list, and posistion(row,column)
+   * and returns true if it's black
+   * false if not
    * @param puzzleList puzzle state
    * @param row which row to check
    * @param column Which column to check
