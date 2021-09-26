@@ -1,5 +1,5 @@
 
-import PuzzleSolverFunctions.char_if_valid
+import PuzzleSolverFunctions.charIfValid
 
 import java.io.FileWriter
 import scala.io._
@@ -48,7 +48,7 @@ object PuzzleReaderWriter{
       val row = pos.head._1
       val column = pos.head._2
 
-      val temppuzzle = char_if_valid(savedstate, row, column, x, y ,'*')
+      val temppuzzle = charIfValid(savedstate, row, column, x, y ,'*')
 
       return solutionFinisher(temppuzzle,pos.drop(1))
     }
