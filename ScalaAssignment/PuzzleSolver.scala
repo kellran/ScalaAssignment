@@ -14,8 +14,7 @@ object PuzzleSolver extends App{
     val finalpuzzle = mainAlgorithm(start_puzzle)
     println("After main algorithm: ")
     finalpuzzle.puzzle.foreach(x => println(x))
-
-
+    
     // Check if the algorithm left the puzzle unfinished
     // if so, run bruteforce
     val remainingWhites = findPosOfChar(finalpuzzle,List(),0,0,'_')
