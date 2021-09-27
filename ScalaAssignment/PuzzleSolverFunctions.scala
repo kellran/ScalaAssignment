@@ -1,4 +1,5 @@
 object PuzzleSolverFunctions {
+  var count = 0
   /**
    * Update numbers automatically runs the greybox algorithm
    * Any function that places lamps, automatically runs the update numbers algorithm
@@ -131,11 +132,12 @@ object PuzzleSolverFunctions {
   /**
    * Find illegal positions and add grey boxes in them
    * @param puzzle puzzle class to add grey boxes to illegal positions
+   * @param savedState original puzzle class unaltered
    * @return puzzle class with grey boxes in illegal positions
    */
-  def illegalAlgorithm(puzzle: Puzzle): Puzzle ={
+  def illegalAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
     val whiteBoxes = findPosOfChar(puzzle,List(),0,0,'_')
-    val illegalPos = findIllegals(puzzle, whiteBoxes, List())
+    val illegalPos = findIllegals(puzzle, whiteBoxes, List(), savedState)
     val illegalPuzzle = placeIllegal(puzzle, illegalPos)
 
     //println("Illegals: ")
@@ -159,8 +161,8 @@ object PuzzleSolverFunctions {
     if(!isIdentical(landlockedPuzzle, implicitWhiteAlgorithm(landlockedPuzzle,savedState))){
       return algorithmRecursion(implicitWhiteAlgorithm(landlockedPuzzle,savedState),savedState)
     }
-    if(!isIdentical(landlockedPuzzle, illegalAlgorithm(landlockedPuzzle))){
-      return algorithmRecursion(illegalAlgorithm(landlockedPuzzle),savedState)
+    if(!isIdentical(landlockedPuzzle, illegalAlgorithm(landlockedPuzzle, savedState))){
+      return algorithmRecursion(illegalAlgorithm(landlockedPuzzle, savedState),savedState)
     }
     else return landlockedPuzzle
   }
@@ -189,19 +191,140 @@ object PuzzleSolverFunctions {
    * @param
    * @return
    */
-  def bruteforceAlgorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
-    val whitePos = findPosOfChar(puzzle,List(),0,0,'_')
-    val bruteforceAttempt = bruteforceRecursionOLD(puzzle, whitePos, savedstate)
+  def bruteforceAlgorithm(puzzle: Puzzle, savedState:Puzzle, remainingWhites:List[(Int,Int)]): Puzzle ={
 
-    if(allNumberPos(bruteforceAttempt).nonEmpty){
-      return bruteforceAlgorithm(puzzle,savedstate)
+
+
+    val numberPos = allNumberPos(puzzle)
+    val bruteforceNumberPuzzle = numbersRandomLamps(puzzle, numberPos, savedState)
+
+    val whitePos = findPosOfChar(bruteforceNumberPuzzle,List(),0,0,'_')
+    val bruteforcePuzzle = bruteforceRecursionOLD(bruteforceNumberPuzzle,whitePos, savedState)
+
+    if(allNumberPos(bruteforcePuzzle).nonEmpty){
+      return bruteforceAlgorithm(puzzle,savedState, remainingWhites)
     }
-    if(findPosOfChar(bruteforceAttempt,List(),0,0,'G').nonEmpty){
-      return bruteforceAlgorithm(puzzle,savedstate)
+    if(findPosOfChar(bruteforcePuzzle,List(),0,0,'G').nonEmpty){
+      return bruteforceAlgorithm(puzzle,savedState, remainingWhites)
     }
-    return bruteforceAttempt
+
+
+    return bruteforcePuzzle
   }
 
+  def numbersRandomLamps(puzzle: Puzzle, numbers:List[(Int,Int)], savedState:Puzzle): Puzzle ={
+    val puzzleList = puzzle.puzzle
+
+    if(numbers.nonEmpty){
+      val row = numbers.head._1
+      val column = numbers.head._2
+      val recursionCount = puzzleList(row)(column).asDigit
+
+      val numberRandomLampsPuzzle = numberRandomLamp(puzzle, row, column, recursionCount, savedState)
+
+      if(!validateAllNumbers(numberRandomLampsPuzzle, numbers)){
+        numbersRandomLamps(puzzle, numbers, savedState)
+      }
+      else{
+        return numbersRandomLamps(numberRandomLampsPuzzle, numbers.drop(1), savedState)
+      }
+    }
+    return puzzle
+  }
+
+  def numberRandomLamp(puzzle: Puzzle, row:Int, column:Int, recursionCount:Int, savedState:Puzzle): Puzzle ={
+    val puzzleList = puzzle.puzzle
+    val x = puzzle.sizeX
+    val y = puzzle.sizeY
+
+    if(recursionCount > 0){
+      val r = scala.util.Random
+      val randomnumber = r.nextInt(4)
+
+      count += 1
+      println("numbers " + count)
+
+      if(randomnumber == 0){
+        if(validPos(row - 1,1, x, y) && puzzleList(row - 1)(column) != '*'){
+          if(puzzleList(row - 1)(column) == '_'){
+            val puzzleRandomLamp = puzzle.setChar(row - 1, column, '*')
+
+            val recursionCountUpdated = recursionCount - 1
+            val updateNumbers = updateNumbersAlgorithm(puzzleRandomLamp, savedState)
+            val shineLight = shineLightAlgorithm(updateNumbers)
+            return numberRandomLamp(shineLight,row,column,recursionCountUpdated, savedState)
+          }
+        }
+        return numberRandomLamp(puzzle,row,column,recursionCount, savedState)
+      }
+      if(randomnumber == 1){
+        if(validPos(row + 1, column, x, y) && puzzleList(row + 1)(column) != '*'){
+          if(puzzleList(row + 1)(column) == '_'){
+            val puzzleRandomLamp = puzzle.setChar(row + 1, column, '*')
+
+            val recursionCountUpdated = recursionCount - 1
+            val updateNumbers = updateNumbersAlgorithm(puzzleRandomLamp, savedState)
+            val shineLight = shineLightAlgorithm(updateNumbers)
+            return numberRandomLamp(shineLight,row,column,recursionCountUpdated, savedState)
+          }
+        }
+        return numberRandomLamp(puzzle,row,column,recursionCount, savedState)
+      }
+      if(randomnumber == 2){
+        if(validPos(row, column - 1, x, y) && puzzleList(row)(column - 1) != '*'){
+          if(puzzleList(row)(column - 1) == '_'){
+            val puzzleRandomLamp = puzzle.setChar(row, column - 1, '*')
+
+            val recursionCountUpdated = recursionCount - 1
+            val updateNumbers = updateNumbersAlgorithm(puzzleRandomLamp, savedState)
+            val shineLight = shineLightAlgorithm(updateNumbers)
+            return numberRandomLamp(shineLight,row,column,recursionCountUpdated, savedState)
+          }
+        }
+        return numberRandomLamp(puzzle,row,column,recursionCount, savedState)
+      }
+      if(randomnumber == 3){
+        if(validPos(row, column + 1, x, y) &&puzzleList(row)(column + 1) != '*'){
+          if(puzzleList(row)(column + 1) == '_'){
+            val puzzleRandomLamp = puzzle.setChar(row, column + 1, '*')
+
+            val recursionCountUpdated = recursionCount - 1
+            val updateNumbers = updateNumbersAlgorithm(puzzleRandomLamp, savedState)
+            val shineLight = shineLightAlgorithm(updateNumbers)
+            return numberRandomLamp(shineLight,row,column,recursionCountUpdated, savedState)
+          }
+        }
+        return numberRandomLamp(puzzle,row,column,recursionCount, savedState)
+      }
+    }
+    return puzzle
+  }
+
+/*
+  def bruteforceRecursionNEW(puzzle: Puzzle, remainingWhites:List[(Int,Int)], savedState:Puzzle): Puzzle ={
+    if(remainingWhites.nonEmpty){
+      val row = remainingWhites.head._1
+      val column = remainingWhites.head._2
+
+      val bruteforcePuzzle = puzzle.setChar(row, column, '*')
+      val bruteforcePuzzle2 = algorithmRecursion(bruteforcePuzzle, savedState)
+      val bruteforceWhites = findPosOfChar(bruteforcePuzzle2, List(), 0, 0, '_')
+
+      bruteforcePuzzle2.puzzle.foreach(x => println(x))
+      println("white positions: " + bruteforceWhites)
+      if(bruteforceWhites.nonEmpty){
+        return bruteforceRecursionNEW(bruteforcePuzzle2 ,bruteforceWhites, savedState)
+      }
+    }
+    return puzzle
+  }
+
+
+
+  def shiftListToRight(list: List[(Int,Int)]): List[(Int,Int)] ={
+    return list.take(list.length - 1).+:(list.last)
+  }
+*/
 
   /**
    * @param
@@ -213,6 +336,8 @@ object PuzzleSolverFunctions {
 
     if(whitePos.nonEmpty){
 
+      count += 1
+      println(count)
       val randomnumber = r.nextInt(whitePos.length)
       val randomindex = whitePos(randomnumber)
 
@@ -259,7 +384,7 @@ object PuzzleSolverFunctions {
    * @param listOfIllegals list of all illegal position in the puzzle class
    * @return listOfIllegals
    */
-  def findIllegals(puzzle: Puzzle, remainingWhites:List[(Int,Int)], listOfIllegals:List[(Int,Int)]): List[(Int,Int)] ={
+  def findIllegals(puzzle: Puzzle, remainingWhites:List[(Int,Int)], listOfIllegals:List[(Int,Int)], savedState:Puzzle): List[(Int,Int)] ={
     val numbers = allNumberPos(puzzle)
 
     if(remainingWhites.nonEmpty){
@@ -267,13 +392,14 @@ object PuzzleSolverFunctions {
       val column = remainingWhites.head._2
 
       val illegalCheck = puzzle.setChar(row,column, '*')
-      val illegalCheck2 = shineLightAlgorithm(illegalCheck)
+      val illegalCheckNumbersUpdate = updateNumbersAlgorithm(illegalCheck, savedState)
+      val illegalCheckShine = shineLightAlgorithm(illegalCheckNumbersUpdate)
 
-      if(!validateAllNumbers(illegalCheck2,numbers)){
+      if(!validateAllNumbers(illegalCheckShine,numbers)){
         val illegals_updated = listOfIllegals :+ (row,column)
-        return findIllegals(puzzle, remainingWhites.drop(1), illegals_updated)
+        return findIllegals(puzzle, remainingWhites.drop(1), illegals_updated, savedState)
       }
-      return findIllegals(puzzle, remainingWhites.drop(1), listOfIllegals)
+      return findIllegals(puzzle, remainingWhites.drop(1), listOfIllegals, savedState)
     }
     return listOfIllegals
   }
@@ -1023,7 +1149,7 @@ object PuzzleSolverFunctions {
   }
 
   /**
-   * function takes in list, and posistion(row,column)
+   * function takes in list, and position(row,column)
    * and returns true if it's black
    * false if not
    * @param puzzleList puzzle state
