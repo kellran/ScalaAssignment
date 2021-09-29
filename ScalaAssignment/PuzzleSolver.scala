@@ -41,7 +41,8 @@ object PuzzleSolver extends App{
     }
   }
 
-  initRW("puzzle_unsolved.txt","puzzle_solved.txt")
+  initRW("puzzle_unsolved.txt", "puzzle_solved.txt")
+  val numPuzzles=getNumPuzzles()
   println("Solving puzzle #1")
   putSolution(Solve(getPuzzle(0)))
 

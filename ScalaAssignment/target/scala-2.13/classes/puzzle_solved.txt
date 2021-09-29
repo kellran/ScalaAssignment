@@ -1,3 +1,4 @@
+puzzles 1
 size 9x14
 *XL*XL0*X
 0*LL0*XLL

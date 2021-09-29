@@ -20,6 +20,13 @@ object PuzzleReaderWriter{
     return new Puzzle(sizeNumbers(0).toInt,sizeNumbers.last.toInt,List(List()))
   }
 
+  def getNumPuzzles():Int={
+    val countPuzzles=lines(0).split(" ").last.toInt
+    // writing number of puzzles into solution
+    fw.write("puzzles "+countPuzzles.toString+"\n")
+    return countPuzzles
+  }
+
   // returns a lists of chars based on the unsolved.txt file
   def unsolvedToList(): List[List[Char]] ={
     val puzzleList:List[List[Char]] = lines
