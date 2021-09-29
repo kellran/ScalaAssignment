@@ -22,9 +22,6 @@ object PuzzleSolverFunctions {
   def greyBoxAlgorithm(puzzle: Puzzle): Puzzle ={
     val zeros = findPosOfChar(puzzle,List(),0,0,'0')
     val greyBoxPuzzle = greyBox(puzzle,zeros)
-    //println("Greybox:")
-    //greybox_puzzle.puzzle.foreach(x => println(x))
-
     return greyBoxPuzzle
   }
 
@@ -37,8 +34,6 @@ object PuzzleSolverFunctions {
   def updateNumbersAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
     val numbers = allNumberPos(puzzle)
     val numbersPuzzle = updateNumbers(puzzle, savedState, numbers)
-    //println("Numbers update:")
-    //numbers_puzzle.puzzle.foreach(x => println(x))
 
     val greyBox = greyBoxAlgorithm(numbersPuzzle)
     return greyBox
@@ -53,8 +48,6 @@ object PuzzleSolverFunctions {
   def landlockedAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
     val landlockedTiles = findLandlocked(puzzle,List(),0,0)
     val landlockedPuzzle = placeLandlocked(puzzle, landlockedTiles)
-    //println("Landlocked:")
-    //landlocked_puzzle.puzzle.foreach(x => println(x))
 
     val updateNumbers = updateNumbersAlgorithm(landlockedPuzzle,savedState)
     return updateNumbers
@@ -70,8 +63,6 @@ object PuzzleSolverFunctions {
     val numbers = allNumberPos(puzzle)
     val implicitLand = findImplicitLandlocked(puzzle,numbers,List())
     val implicitLandPuzzle = placeImplicitNumber(puzzle,implicitLand)
-    //println("Implicit landlocked:")
-    //impl_land_puzzle.puzzle.foreach(x => println(x))
 
     val updateNumbers = updateNumbersAlgorithm(implicitLandPuzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
@@ -86,9 +77,6 @@ object PuzzleSolverFunctions {
   def shineLightAlgorithm(puzzle: Puzzle): Puzzle ={
     val lamps = findPosOfChar(puzzle,List(),0,0,'*')
     val lightPuzzle = lights(puzzle, lamps)
-    //println("Light:")
-    //light_puzzle.puzzle.foreach(x => println(x))
-
     return lightPuzzle
   }
 
@@ -102,8 +90,6 @@ object PuzzleSolverFunctions {
     val greyBoxes = findPosOfChar(puzzle,List(),0,0,'G')
     val greyImplicits = findImplicitWhiteGrey(puzzle,greyBoxes,List(), 1)
     val greyImplicitsPuzzle = placeImplicitsWhiteGrey(puzzle,greyImplicits)
-    //println("grey implicits:")
-    //grey_implicit_puzzle.puzzle.foreach(x => println(x))
 
     val updateNumbers = updateNumbersAlgorithm(greyImplicitsPuzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
@@ -120,8 +106,6 @@ object PuzzleSolverFunctions {
     val whiteBoxes = findPosOfChar(puzzle,List(),0,0,'_')
     val whiteImplicits = findImplicitWhiteGrey(puzzle,whiteBoxes,List(), 0)
     val white_implicit_puzzle = placeImplicitsWhiteGrey(puzzle,whiteImplicits)
-    //println("white implicits:")
-    //white_implicit_puzzle.puzzle.foreach(x => println(x))
 
     val updateNumbers = updateNumbersAlgorithm(white_implicit_puzzle, savedState)
     val shineLight = shineLightAlgorithm(updateNumbers)
@@ -131,15 +115,14 @@ object PuzzleSolverFunctions {
   /**
    * Find illegal positions and add grey boxes in them
    * @param puzzle puzzle class to add grey boxes to illegal positions
+   * @param savedState original puzzle class unaltered
    * @return puzzle class with grey boxes in illegal positions
    */
-  def illegalAlgorithm(puzzle: Puzzle): Puzzle ={
+  def illegalAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
     val whiteBoxes = findPosOfChar(puzzle,List(),0,0,'_')
-    val illegalPos = findIllegals(puzzle, whiteBoxes, List())
+    val illegalPos = findIllegals(puzzle, whiteBoxes, List(), savedState)
     val illegalPuzzle = placeIllegal(puzzle, illegalPos)
 
-    //println("Illegals: ")
-    //illegal_puzzle.puzzle.foreach(x => println(x))
     return illegalPuzzle
   }
 
@@ -159,8 +142,8 @@ object PuzzleSolverFunctions {
     if(!isIdentical(landlockedPuzzle, implicitWhiteAlgorithm(landlockedPuzzle,savedState))){
       return algorithmRecursion(implicitWhiteAlgorithm(landlockedPuzzle,savedState),savedState)
     }
-    if(!isIdentical(landlockedPuzzle, illegalAlgorithm(landlockedPuzzle))){
-      return algorithmRecursion(illegalAlgorithm(landlockedPuzzle),savedState)
+    if(!isIdentical(landlockedPuzzle, illegalAlgorithm(landlockedPuzzle, savedState))){
+      return algorithmRecursion(illegalAlgorithm(landlockedPuzzle, savedState),savedState)
     }
     else return landlockedPuzzle
   }
@@ -183,50 +166,51 @@ object PuzzleSolverFunctions {
 
   /**
    * Bruteforce algorithm if main algorithm isn't enough
-   * places lamps in random positions and checks if it's correct
-   * repeat if not.
-   * @param
-   * @param
-   * @return
+   * Checks if the puzzle sent from bruteforceRecursionRandom
+   * is correct by checking the if there are any remaining
+   * numbers or grey boxes, repeats itself if so.
+   * @param puzzle puzzle altered by the algorithm
+   * @param savedState is the original puzzle, used to update numbers
+   * @return bruteforcePuzzle returns the finished puzzle after bruteforce is done
    */
-  def bruteforceAlgorithm(puzzle: Puzzle, savedstate:Puzzle): Puzzle ={
+  def bruteforceAlgorithm(puzzle: Puzzle, savedState:Puzzle): Puzzle ={
     val whitePos = findPosOfChar(puzzle,List(),0,0,'_')
-    val bruteforceAttempt = bruteforceRecursionOLD(puzzle, whitePos, savedstate)
+    val bruteforceAttempt = bruteforceRecursionRandom(puzzle, whitePos, savedState)
 
     if(allNumberPos(bruteforceAttempt).nonEmpty){
-      return bruteforceAlgorithm(puzzle,savedstate)
+      return bruteforceAlgorithm(puzzle,savedState)
     }
     if(findPosOfChar(bruteforceAttempt,List(),0,0,'G').nonEmpty){
-      return bruteforceAlgorithm(puzzle,savedstate)
+      return bruteforceAlgorithm(puzzle,savedState)
     }
     return bruteforceAttempt
   }
 
-
   /**
-   * @param
-   * @param
-   * @return
+   * Picks a random index of the list of white tiles
+   * and places lamp in index. continues until there
+   * are no remaining white tiles.
+   * @param puzzle puzzle altered by the algorithm
+   * @param whitePos list of white tiles
+   * @param savedState is the original puzzle, used to update numbers
+   * @return puzzle with all white tiles randomly filled in.
    */
-  def bruteforceRecursionOLD(puzzle: Puzzle, whitePos:List[(Int,Int)], savedState:Puzzle): Puzzle ={
+  def bruteforceRecursionRandom(puzzle: Puzzle, whitePos:List[(Int,Int)], savedState:Puzzle): Puzzle ={
     val r = scala.util.Random
 
     if(whitePos.nonEmpty){
+      val randomNumber = r.nextInt(whitePos.length)
+      val randomIndex = whitePos(randomNumber)
 
-      val randomnumber = r.nextInt(whitePos.length)
-      val randomindex = whitePos(randomnumber)
-
-      val row = randomindex._1
-      val column = randomindex._2
+      val row = randomIndex._1
+      val column = randomIndex._2
 
       val bruteforce_puzzle = puzzle.setChar(row,column, '*')
-
-
       val update_numbers = updateNumbersAlgorithm(bruteforce_puzzle, savedState)
       val shine_light = shineLightAlgorithm(update_numbers)
 
       val whites_updated = findPosOfChar(shine_light,List(),0,0,'_')
-      return bruteforceRecursionOLD(shine_light, whites_updated, savedState)
+      return bruteforceRecursionRandom(shine_light, whites_updated, savedState)
     }
     return puzzle
   }
@@ -259,7 +243,7 @@ object PuzzleSolverFunctions {
    * @param listOfIllegals list of all illegal position in the puzzle class
    * @return listOfIllegals
    */
-  def findIllegals(puzzle: Puzzle, remainingWhites:List[(Int,Int)], listOfIllegals:List[(Int,Int)]): List[(Int,Int)] ={
+  def findIllegals(puzzle: Puzzle, remainingWhites:List[(Int,Int)], listOfIllegals:List[(Int,Int)], savedState:Puzzle): List[(Int,Int)] ={
     val numbers = allNumberPos(puzzle)
 
     if(remainingWhites.nonEmpty){
@@ -267,13 +251,15 @@ object PuzzleSolverFunctions {
       val column = remainingWhites.head._2
 
       val illegalCheck = puzzle.setChar(row,column, '*')
-      val illegalCheck2 = shineLightAlgorithm(illegalCheck)
+      val illegalCheckNumbersUpdate = updateNumbersAlgorithm(illegalCheck, savedState)
+      val illegalCheckShine = shineLightAlgorithm(illegalCheckNumbersUpdate)
+      val illegalCheckImplicit = implicitLandlockedAlgorithm(illegalCheckShine,savedState)
 
-      if(!validateAllNumbers(illegalCheck2,numbers)){
+      if(!validateAllNumbers(illegalCheckImplicit,numbers)){
         val illegals_updated = listOfIllegals :+ (row,column)
-        return findIllegals(puzzle, remainingWhites.drop(1), illegals_updated)
+        return findIllegals(puzzle, remainingWhites.drop(1), illegals_updated, savedState)
       }
-      return findIllegals(puzzle, remainingWhites.drop(1), listOfIllegals)
+      return findIllegals(puzzle, remainingWhites.drop(1), listOfIllegals, savedState)
     }
     return listOfIllegals
   }
@@ -734,6 +720,7 @@ object PuzzleSolverFunctions {
   /**
    * takes in positions of numbers and updates them
    * with the update_number function.
+   * with the update_number function.
    * @param puzzle puzzle class to update numbers in
    * @param savedState the original puzzle unchanged - used to calculate current number in numbered tile
    * @param numbersPos position of all numbers in the puzzle
@@ -1023,7 +1010,7 @@ object PuzzleSolverFunctions {
   }
 
   /**
-   * function takes in list, and posistion(row,column)
+   * function takes in list, and position(row,column)
    * and returns true if it's black
    * false if not
    * @param puzzleList puzzle state
